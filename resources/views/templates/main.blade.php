@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Data Pelaporan </title>
+    <title>Rumah Cemilan Sehat</title>
     <meta name="description" content="A high-quality &amp; free Bootstrap admin dashboard template pack that comes with lots of templates and components.">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
@@ -27,7 +27,7 @@
               <a class="navbar-brand w-100 mr-0" href="#" style="line-height: 25px;">
                 <div class="d-table m-auto">
                   <img id="main-logo" class="d-inline-block align-top mr-1" style="max-width: 25px;" src="{{url('images/shards-dashboards-logo.svg')}}" alt="Shards Dashboard">
-                  <span class="d-none d-md-inline ml-1">Data Pelaporan</span>
+                  <span class="d-none d-md-inline ml-1">Rumah Cemilan Sehat</span>
                 </div>
               </a>
               <a class="toggle-sidebar d-sm-inline d-md-none d-lg-none">
@@ -94,6 +94,12 @@
                   <span>Reseller</span>
                 </a>
               </li>
+              <li class="nav-item">
+                <a @if($halaman == 'order') class="nav-link active" @else class="nav-link" @endif href="{{route('order')}}">
+                  <i class="material-icons">business_center</i>
+                  <span>Order</span>
+                </a>
+              </li>
             </ul>
           </div>
         </aside>
@@ -114,17 +120,25 @@
               <ul class="navbar-nav border-left flex-row ">
                 <li class="nav-item dropdown">
                   <a class="nav-link dropdown-toggle text-nowrap px-3" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                    <img class="user-avatar rounded-circle mr-2" src="{{url('images/avatars/2.jpg')}}" alt="User Avatar">
-                    <span class="d-none d-md-inline-block">Admin</span>
+                    @if(Auth::user()->foto)
+                    <img class="user-avatar rounded-circle mr-2" src="{{ url('images/avatars/'.Auth::user()->foto)}}">
+                    @else
+                    <img class="user-avatar rounded-circle mr-2" src="{{url('images/avatars/dummy.jpg')}}">
+                    @endif
+                    <span class="d-none d-md-inline-block">Selamat datang {{Auth::user()->nama_akun}}</span>
                   </a>
                   <div class="dropdown-menu dropdown-menu-small">
-                    <a class="dropdown-item" href="user-profile-lite.html">
-                      <i class="material-icons">&#xE7FD;</i> Profile</a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item text-danger" href="#">
-                      <i class="material-icons text-danger">&#xE879;</i> Logout </a>
+                    <a class="dropdown-item" href="{{ route('logout') }}"
+                       onclick="event.preventDefault();
+                    document.getElementById('logout-form').submit();">
+                    <i class="material-icons text-danger">&#xE879;</i> {{ __('Logout') }}
+                    </a>
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                       @csrf
+                    </form>
                   </div>
                 </li>
+
               </ul>
               <nav class="nav">
                 <a href="#" class="nav-link nav-link-icon toggle-sidebar d-md-inline d-lg-none text-center border-left" data-toggle="collapse" data-target=".header-navbar" aria-expanded="false" aria-controls="header-navbar">
@@ -179,6 +193,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
     <script src="https://unpkg.com/shards-ui@latest/dist/js/shards.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sharrre/2.0.1/jquery.sharrre.min.js"></script>
+    <script src="https://cdn.rawgit.com/igorescobar/jQuery-Mask-Plugin/1ef022ab/dist/jquery.mask.min.js"></script>
     <script src="{{url('scripts/extras.1.1.0.min.js')}}"></script>
     <script src="{{url('scripts/shards-dashboards.1.1.0.min.js')}}"></script>
     <script src="{{url('scripts/app/app-blog-overview.1.1.0.js')}}"></script>

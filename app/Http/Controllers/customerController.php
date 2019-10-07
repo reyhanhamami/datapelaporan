@@ -18,6 +18,13 @@ class customerController extends Controller
         $customer = Customer::orderBy('nama_customer','ASC')->paginate(10);
         return view('customer.customer', compact('customer'));
     }
+    public function cari(request $request)
+    {
+        $cari = $request->cari;
+
+        $customer = Customer::where('nama_customer','like',"%".$cari."%")->paginate(10);
+        return view('customer.customer', compact('customer'));
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -52,7 +59,8 @@ class customerController extends Controller
             'kelurahan_customer' => 'required',
             'kecamatan_customer' => 'required',
             'kota_customer' => 'required',
-            'kodepos_customer' => 'numeric'
+            'provinsi_customer' => 'required',
+            'kodepos_customer' => 'numeric|min:4'
         ]);
 
         Customer::create($request->all());
@@ -97,7 +105,8 @@ class customerController extends Controller
             'kelurahan_customer' => 'required',
             'kecamatan_customer' => 'required',
             'kota_customer' => 'required',
-            'kodepos_customer' => 'numeric'
+            'provinsi_customer' => 'required',
+            'kodepos_customer' => 'numeric|min:4'
         ]);
 
         Customer::where('id_customer',$customer->id_customer)
@@ -108,6 +117,7 @@ class customerController extends Controller
                         'kelurahan_customer' => $request->kelurahan_customer,
                         'kecamatan_customer' => $request->kecamatan_customer,
                         'kota_customer' => $request->kota_customer,
+                        'provinsi_customer' => $request->provinsi_customer,
                         'kodepos_customer' => $request->kodepos_customer
                     ]);
         return redirect()->route('customer')->with('update','customer ' .$customer->nama_customer. ' berhasil di edit');

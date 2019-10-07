@@ -49,6 +49,9 @@ class forHoverServiceProvider extends ServiceProvider
         if (Request::segment(1) == 'reseller'){
             $halaman = 'reseller';
         }
+        if (Request::segment(1) == 'order'){
+            $halaman = 'order';
+        }
 
         // untuk ngelempar variabel $halaman menjadi variabel global
         view()->share('halaman', $halaman);

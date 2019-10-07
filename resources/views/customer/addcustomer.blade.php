@@ -43,7 +43,9 @@
                                     @enderror
                                 </div>
                             </div>
-                                <div class="form-group ">
+                                <div class="form-row ">
+                                    <!-- alamat  -->
+                                    <div class="col-xl-10">
                                     <label class="d-block" for="alamat">Alamat</label>
                                     <input type="text" value="{{old('alamat_customer')}}" name="alamat_customer" class="@error('alamat_customer') is-invalid @enderror form-control" id="alamat">
                                     @error('alamat_customer')
@@ -51,6 +53,17 @@
                                             {{$message}}
                                         </div>
                                     @enderror
+                                    </div>
+                                    <!-- provinsi -->
+                                    <div class="col-xl-2">
+                                    <label class="d-block" for="provinsi">Provinsi</label>
+                                    <input type="text" value="{{old('provinsi_customer')}}" name="provinsi_customer" class="@error('provinsi_customer') is-invalid @enderror form-control" id="provinsi">
+                                    @error('provinsi_customer')
+                                        <div class="invalid-feedback">
+                                            {{$message}}
+                                        </div>
+                                    @enderror
+                                    </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="col-xl-3 col-sm-6">
@@ -98,6 +111,7 @@
                           </form>
                     </li>
                   </ul>
+                </div>
                 </div>
             </div>
         </div>
