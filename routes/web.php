@@ -99,5 +99,11 @@ Route::group(['middleware' => ['auth']], function(){
 });
 
 // route untuk reseller input pesanan 
-Route::get('/order', function(){return view('pesanan.pesanan');
-})->name('order');
+Route::group(['middleware' => ['auth']], function(){
+    Route::get('/order', 'orderController@index')->name('order');
+    Route::get('/cari-telepon', 'orderController@caritelepon');
+    Route::get('/getbarang', 'orderController@getbarang');
+    Route::get('/caribarang', 'orderController@caribarang');
+    Route::post('/order/add', 'orderController@store')->name('storeorder');
+    // Route::get('/order', 'orderController@fetch')->name('fetch');
+});

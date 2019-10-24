@@ -14,7 +14,6 @@
                     <form method="POST" action="{{url('barang/edit/'.$barang->id_barang)}}" enctype="multipart/form-data">
                         @method('patch')
                         @csrf
-
                         <div class="form-group row">
                             <label for="nama_barang" class="col-md-4 col-form-label text-md-right">Nama Barang</label>
                             <div class="col-md-6">

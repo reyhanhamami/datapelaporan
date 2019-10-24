@@ -45,7 +45,7 @@
                   <div class="card-header border-bottom">
                     <h6 class="m-0 d-inline">Data Stock barang</h6>
                     <!-- search  -->
-                     <form action="{{route('caribarang')}}" class="main-sidebar__search border-left d-sm-flex float-right">
+                     <!-- <form action="{{route('caribarang')}}" class="main-sidebar__search border-left d-sm-flex float-right">
                       <div class="input-group input-group-seamless ml-3">
                         <div class="input-group-prepend">
                           <div class="input-group-text">
@@ -53,7 +53,7 @@
                           </div>
                         </div>
                         <input name="cari" class="navbar-search form-control" type="text" placeholder="Cari barang..." aria-label="Search"> </div>
-                    </form>
+                    </form> -->
                     <!-- end search  -->
                   </div>
                   <div class="card-body p-0 pb-3 ">
@@ -70,41 +70,41 @@
                       </thead>
                       <tbody>
                         <!-- looping table -->
-                        @foreach($join as $joins)
+                        @foreach($kategori as $kat)
                           <td class="bg-dark text-white" colspan="6">
-                          @if($joins->id_kategori == $joins->kategori_barang)
-                          Kategori : <span class='text-info'>{{$joins->nama_kategori}}</span> 
-                          @endif
+                          Kategori : <span class='text-info'>{{$kat->nama_kategori}}</span> 
                           @if(Auth::user()->level == 'admin')
-                          <a href="{{url('barang/kategori/edit/'.$joins->id_kategori)}}" class="btn btn-outline-info"><i class="fas fa-edit"> Edit</i></a>
-                          <form action="{{url('barang/kategori/hapus/'.$joins->id_kategori)}}" class="d-inline" method="post">
+                          <a href="{{url('barang/kategori/edit/'.$kat->id_kategori)}}" class="btn btn-outline-info"><i class="fas fa-edit"> Edit</i></a>
+                          <form action="{{url('barang/kategori/hapus/'.$kat->id_kategori)}}" class="d-inline" method="post">
                           @method('delete')
                           @csrf
                             <button class="btn btn-outline-danger btn-sm"><i class="fas fa-trash"> Hapus</i></button>
                           </form>
                           @endif
                           </td>
+                          @foreach($kat->barang as $barang)
                         <tr> 
                           <td>{{$loop->iteration}}</td>
-                          <td>{{$joins->nama_barang}}</td>
+                          <td>{{$barang->nama_barang}}</td>
                           <td>
-                            @if($joins->foto_barang)
-                            <img src="{{url('images/barang/'.$joins->foto_barang)}}" alt="" width="50">
+                            @if($barang->foto_barang)
+                            <img src="{{url('images/barang/'.$barang->foto_barang)}}" alt="" width="50">
                             @else                          
                             <img src="{{url('images/avatars/dummy.jpg')}}" alt="" width="50">
                             @endif
                           </td>
-                          <td>{{$joins->stock_barang}} Pcs</td>
-                          <td>Rp.{{$joins->harga_jual}}</td>
+                          <td>{{$barang->stock_barang}} Pcs</td>
+                          <td>Rp.{{$barang->harga_jual}}</td>
                           <td>
-                              <a href="{{url('barang/edit/'.$joins->id_barang)}}" class="btn btn-outline-info btn-sm"><i class="fas fa-edit"></i>Edit</a>
-                              <form action="{{url('barang/delete/'.$joins->id_barang)}}" method="post" class="d-inline">
+                              <a href="{{url('barang/edit/'.$barang->id_barang)}}" class="btn btn-outline-info btn-sm"><i class="fas fa-edit"></i>Edit</a>
+                              <form action="{{url('barang/delete/'.$barang->id_barang)}}" method="post" class="d-inline">
                               @method('delete')
                               @csrf
                                 <button href="" class="btn btn-outline-danger btn-sm"><i class="fas fa-trash"></i>Hapus</button>
                               </form>
                           </td>
                         </tr>
+                        @endforeach
                         @endforeach
                         <!-- end looping  -->
                       </tbody>

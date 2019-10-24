@@ -10,7 +10,11 @@ class barang extends Model
     protected $table = 'barang';
     protected $primaryKey = 'id_barang';
     protected $fillable = ['nama_barang','foto_barang','stock_barang','kategori_barang','harga_jual'];
-
+    // relasi many to one ke kategori
+    public function kategori()
+    {
+        return $this->belongsTo('App\kategori');
+    }
     protected static function boot()
     {
         parent::boot();

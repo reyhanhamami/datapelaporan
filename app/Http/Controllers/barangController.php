@@ -15,15 +15,10 @@ class barangController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(barang $barang)
+    public function index()
     {
-        $join = DB::table('barang')->join('kategori','kategori_barang','=','id_kategori')->select('kategori.*','barang.*')->paginate(20);
-        // dd($join);
-        // seleksi kategori id 
         $kategori = Kategori::get();
-        $stuff = Barang::get();
-        // dd($join);
-        return view('barang.barang',compact('kategori','barang','stuff','join'));
+        return view('barang.barang',compact('kategori'));
     }
 
     /**
@@ -41,9 +36,9 @@ class barangController extends Controller
     {
         $cari = $request->cari;
         // sql cari 
-        $join = DB::table('barang')->where('nama_barang','like','%'.$cari.'%')->join('kategori','kategori_barang','=','id_kategori')->select('kategori.*','barang.*')->paginate(20);
+        $kategori = DB::table('barang')->where('nama_barang','like','%'.$cari.'%')->join('kategori','kategori_barang','=','id_kategori')->select('kategori.*','barang.*')->paginate(20);
 
-        return view('barang.barang',compact('join'));  
+        return view('barang.barang',compact('kategori'));  
     }
 
     /**

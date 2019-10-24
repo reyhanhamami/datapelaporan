@@ -13,7 +13,7 @@
                 <div class="card-body">
                     <form method="POST" action="{{route('storebarang')}}" enctype="multipart/form-data">
                         @csrf
-
+                    {{-- <input type="text" class="form-control idsetoran" name="idsetoran" id="idsetoran" value="{{$idsetoran}}" readonly> --}}
                         <div class="form-group row">
                             <label for="nama_barang" class="col-md-4 col-form-label text-md-right">Nama Barang</label>
                             <div class="col-md-6">
@@ -110,7 +110,6 @@
     <script>
         $(document).ready(function(){
             $('#harga_jual').mask('000.000.000', {reverse:true});
-            $('#stock_barang').mask('000.000.000',{reverse:true});
         });
     </script>
 @endsection('scriptExternal')
