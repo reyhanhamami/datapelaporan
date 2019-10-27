@@ -111,6 +111,7 @@
                                             <th>Stock</th>
                                             <th>Harga</th>
                                             <th>beli berapa</th>
+                                            <th>Diskon</th>
                                             <th>Catatan</th>
                                             <th>sub total</th>
                                             <th class="text-right"><i class="fas fa-cogs"></i></th>
@@ -148,33 +149,40 @@
     @section('scriptExternal')
    
     <script>
+    var acak;
     // script tambah barang 
     $(".addCF").click(function(){
-      $("#customFields").append(`
-      <tr>
+      var random = Math.floor((Math.random() * 100000) + 1);
+      a = `
+      <tr id="id_barang_`+ random +`">
         <td>
-          <select name="barang_order[]" id="barang_order" class="form-control barang_order"></select>
+          <select name="barang_order[]" id="barang_order_`+ random +`" class="form-control barang_order"></select>
         </td>
         <td>
-          <input type="text" name="stock_barang[]" class="form-control stock_barang" readonly></select>
+          <input type="text" name="stock_barang[]" id="stock_barang_`+ random +`" class="form-control stock_barang" readonly>
         </td>
         <td>
-          <input type="text" name="harga_jual[]" class="form-control harga_jual" readonly></select>
+          <input type="text" name="harga_jual[]" id="harga_jual_`+ random + `" class="form-control harga_jual" readonly>
         </td>
         <td>
-          <input type="text" name="beliberapa_order[]" class="form-control beliberapa_order"></select>
+          <input type="text" name="beliberapa_order[]" id="beliberapa_order_`+ random +`" class="form-control beliberapa_order">
         </td>
         <td>
-          <input type="text" name="note_order[]" class="form-control note_order"></select>
+          <input type="text" name="diskon_order[]" id="diskon_order_`+ random +`" class="form-control diskon_order">
         </td>
         <td>
-          <input type="text" name="subtotal[]" class="form-control subtotal" readonly></select>
+          <input type="text" name="note_order[]" id="note_order_`+ random +`" class="form-control note_order">
+        </td>
+        <td>
+          <input type="text" name="subtotal[]" id="subtotal_`+ random + `" class="form-control subtotal" readonly>
         </td>
        <td class="text-right">
         <button type="button" class="btn btn-danger btn-sm remCF"><i class="fa fa-minus"></i></button>
         </td>
       </tr>
-      `);
+      `;
+      $("#customFields").append(a);
+      acak = random;
     });
     // end script tambah barang 
     // script hapus kolom tambah barang 
@@ -183,9 +191,9 @@
     });
     // end script hapus kolom tambah barang 
 
+    // script cari barang
     $(document).on('click','.barang_order',function(){
-        $('.barang_order').each(function(){
-          $(this).select2({
+        var tes =  $(this).select2({
             placeholder: 'Pilih Barang',
             ajax: {
               url: '/caribarang',
@@ -201,21 +209,41 @@
                   })
                 };
               },
-              cache: true
             }
           });
-        });
     });
+    // end script cari barang 
     
+    // menampilkan stock dan harga jual jika barang dipilih
     $(document).on('change','.barang_order', function(){
         var barang_order = $(this).val();
-        console.log(barang_order);
-        $.get('/getbarang?id='+barang_order, function(data){
-          $(".stock_barang").val(data.stock_barang);
-          $(".harga_jual").val(data.harga_jual).trigger('change');
+        var datas = '/getbarang?id='+barang_order; 
+        $.get(datas , function(data){
+          $("#stock_barang_" + acak).val(data.stock_barang);
+          $("#harga_jual_"+ acak).val(data.harga_jual).trigger('change');
         });
     });
+    // end barang dipilih s
 
+    // subtotal untuk beli berapa di kali sama harga jual
+    $(document).on('change','.beliberapa_order', function(){
+      var barang_order = $(this).val();
+      var jumlah = $("#beliberapa_order_" + acak).val();
+      var total = parseInt(jumlah) * $("#harga_jual_"+acak).val();
+      $("#subtotal_"+acak).val(total).trigger('change');
+    });
+    // end subtotal 
+
+    // subtotal untuk diskon
+    $(document).on('change','.diskon_order', function(){
+      var diskon_order = $(this).val();
+      var diskon = $("#diskon_order_" + acak).val();
+      var kurang = $("#subtotal_"+ acak).val() - parseInt(diskon);
+      console.log(kurang);
+      $("#subtotal_"+acak).val(kurang).trigger('change');
+    });
+
+    // get customer phone dengan select2 
      $(".customer_order").select2({
       placeholder: 'Pilih No HP Customer...',
       ajax: {
@@ -235,6 +263,10 @@
           cache: true
         }
       });
+      // end get customer 
+
+      // masking subtotal jadi 000 
+      $("#subtotal_" + acak).mask('000,000,000', {reverse:true});
 
     </script>
  
@@ -257,29 +289,5 @@
 
     </script>
     <!-- end script dropship  -->
-
-    <script type="text/javascript">
-    $(document).ready(function(){
-      $("#barang_order").select2({
-        placeholder: 'Pilih Produk...',
-        ajax: {
-          url: '/caribarang',
-          dataType: 'json',
-          delay:250,
-          processResults: function (data) {
-            return {
-              results: $.map(data, function (item) {
-                return {
-                  text: [item.nama_barang,' - ', "Stock:",item.stock_barang,' Harga: ', item.harga_jual],
-                  id: item.id_barang
-                }
-              })
-            };
-          },
-          cache: true
-        }
-      });
-    })
-    </script>
 
     @endsection('scriptExternal')

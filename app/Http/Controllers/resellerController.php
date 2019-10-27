@@ -64,21 +64,22 @@ class resellerController extends Controller
         ]);
 
         // ambil request foto di taruh di variabel 
-        $foto = $request->file('foto');
-
-        // ambil extensionnya saja
+        if ($request->foto) {
+            $foto = $request->file('foto');
+            
+            // ambil extensionnya saja
         $ext = $foto->getClientOriginalExtension();
-
+        
         // kasih nama
         $input['imagename'] = date("Y-m-d,His").".$ext";
 
         // lokasi penyimpanan 
         $lokasi = public_path('images/avatars');
-
+        
         if (!file_exists($lokasi)) {
             mkdir($lokasi);
         };
-
+        
         // plugin image mengambil realpath foto
         $img = Image::make($foto->getRealPath());
         // untuk dipotong 
@@ -86,10 +87,11 @@ class resellerController extends Controller
         
         // ambil namanya 
         $data['foto'] = $input['imagename'];
-
+        }
+        
         // hash password using bcrypt
         $data['password'] = bcrypt($data['password']);
-
+        
         User::create($data);
 
         return redirect()->route('reseller')->with('success','User Login berhasil ditambahkan');

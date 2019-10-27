@@ -40,7 +40,6 @@ class orderController extends Controller
     public function caribarang(request $request)
     {
         $data = [];
-
         if ($request->has('q')) {
             $cari = $request->q;
             $data = DB::table('barang')->where('nama_barang','like',"%$cari%")->get();
@@ -50,8 +49,8 @@ class orderController extends Controller
 
      public function getbarang()
     {
-    $barang = [];
-       $barang = Barang::where('barang.id_barang',$_GET['id'])->get();
+        $barang = [];
+        $barang = Barang::where('barang.id_barang',$_GET['id'])->first();
        return $barang;
     }
 

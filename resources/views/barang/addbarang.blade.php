@@ -109,7 +109,7 @@
 @section('scriptExternal')
     <script>
         $(document).ready(function(){
-            $('#harga_jual').mask('000.000.000', {reverse:true});
+            $('#harga_jual').mask('000,000,000', {reverse:true});
         });
     </script>
 @endsection('scriptExternal')
