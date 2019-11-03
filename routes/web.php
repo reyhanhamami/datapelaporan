@@ -54,6 +54,7 @@ Route::group(['middleware' => ['auth']], function(){
     Route::get('customer/edit/{customer}','customerController@edit');
     Route::patch('customer/edit/{customer}','customerController@update');
     Route::get('customer/cari','customerController@cari')->name('caricustomer');
+    Route::get('customer/exportExcel','customerController@exportExcel')->name('exportExcel');
 });
 
 // route master vendor 
@@ -107,3 +108,8 @@ Route::group(['middleware' => ['auth']], function(){
     Route::post('/order/add', 'orderController@store')->name('storeorder');
     // Route::get('/order', 'orderController@fetch')->name('fetch');
 });
+
+// route untuk status 
+Route::group(['middleware' => ['auth']], function(){
+    Route::get('/status_order', 'statusController@index')->name('status_order');
+}); 

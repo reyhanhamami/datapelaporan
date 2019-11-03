@@ -100,6 +100,12 @@
                   <span>Order</span>
                 </a>
               </li>
+              <li class="nav-item">
+                <a @if($halaman == 'status_order') class="nav-link active" @else class="nav-link" @endif href="{{route('status_order')}}">
+                  <i class="material-icons">timelapse</i>
+                  <span>Status Order</span>
+                </a>
+              </li>
             </ul>
           </div>
         </aside>

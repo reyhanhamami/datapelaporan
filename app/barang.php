@@ -15,6 +15,11 @@ class barang extends Model
     {
         return $this->belongsTo('App\kategori');
     }
+    // relasi many to many ke order 
+    public function order()
+    {
+         return $this->belongsToMany(Order::class, 'barang_order','id_barang','id_order');
+    }
     protected static function boot()
     {
         parent::boot();
@@ -32,4 +37,5 @@ class barang extends Model
     {
         return 'string';
     }
+    
 }

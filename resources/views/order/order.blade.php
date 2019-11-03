@@ -24,7 +24,7 @@
                           <div class="form-group">
                                 <div class="form-row">
                                     <div class="form-group col-xl-9 col-md-12">
-                                        <select name="customer_order form-control" id="inputState" class="customer_order form-control @error('customer_order') is-invalid @enderror">
+                                        <select name="customer_order" id="inputState" class="customer_order form-control @error('customer_order') is-invalid @enderror">
                                         @error('customer_order')
                                           <div class="invalid-feedback">{{$message}}</div>
                                         @enderror
@@ -88,10 +88,7 @@
                                 </select>
                                 </div>  
                                 <div class="col-4">
-                                  <input type="text" placeholder="ongkoskirim" name="ongkir_order" class="@error('ongkir_order') is-invalid @enderror form-control">
-                                </div>  
-                                <div class="col-3">
-                                  <input type="text" placeholder="Total Keseluruhan Harga"  name="total_order" class="form-control">
+                                  <input type="text" id="ongkir_order" placeholder="ongkoskirim" name="ongkir_order" class="@error('ongkir_order') is-invalid @enderror form-control ongkir_order">
                                 </div>  
                               </div>
                             </div>
@@ -119,6 +116,8 @@
                                         <tbody>
                                         </tbody>
                                       </table>
+                                      <label>Harga Total </label>
+                                      <input type="text" id="total" name="total" class="form-control total" readonly>
                                    </div>
                                    </div>
                                    </div>
@@ -152,10 +151,11 @@
     var acak;
     // script tambah barang 
     $(".addCF").click(function(){
+  
       var random = Math.floor((Math.random() * 100000) + 1);
       a = `
       <tr id="id_barang_`+ random +`">
-        <td>
+        <td style="width:143px">
           <select name="barang_order[]" id="barang_order_`+ random +`" class="form-control barang_order"></select>
         </td>
         <td>
@@ -213,7 +213,12 @@
           });
     });
     // end script cari barang 
-    
+      $(".addCF").prop("disabled",true);
+    $(document).on('change','.ongkir_order', function(){
+          var ongkir = $(this).val();
+          $(".ongkir_order").val(ongkir);
+          $(".addCF").prop("disabled",false);
+    });
     // menampilkan stock dan harga jual jika barang dipilih
     $(document).on('change','.barang_order', function(){
         var barang_order = $(this).val();
@@ -223,7 +228,7 @@
           $("#harga_jual_"+ acak).val(data.harga_jual).trigger('change');
         });
     });
-    // end barang dipilih s
+    // end barang dipilih
 
     // subtotal untuk beli berapa di kali sama harga jual
     $(document).on('change','.beliberapa_order', function(){
@@ -239,9 +244,23 @@
       var diskon_order = $(this).val();
       var diskon = $("#diskon_order_" + acak).val();
       var kurang = $("#subtotal_"+ acak).val() - parseInt(diskon);
-      console.log(kurang);
       $("#subtotal_"+acak).val(kurang).trigger('change');
     });
+
+    // menghitung total keseluruhan
+    $(document).on('change','.subtotal', function(){
+      var totalSum = 0;
+      $('.subtotal').each(function() {
+        var inputVal = $(this).val();
+        console.log(inputVal);
+        if ($.isNumeric(inputVal)) {
+          totalSum += parseFloat(inputVal);
+        }
+      });
+      totals = totalSum + parseInt($("#ongkir_order").val())
+      $("#total").val(totals).trigger('change');
+    });
+    // end total keseluruhan 
 
     // get customer phone dengan select2 
      $(".customer_order").select2({
@@ -264,10 +283,6 @@
         }
       });
       // end get customer 
-
-      // masking subtotal jadi 000 
-      $("#subtotal_" + acak).mask('000,000,000', {reverse:true});
-
     </script>
  
     <!-- script dropship hide / show when checkbox ceklis  -->

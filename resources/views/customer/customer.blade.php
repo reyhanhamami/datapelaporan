@@ -5,6 +5,7 @@
 
 @section('konten')
 <a href="{{route('addcustomer')}}" class="btn btn-outline-primary mb-3"><i class="fas fa-plus-square"></i> Tambah data</a>
+<a href="{{route('exportExcel')}}" class="btn btn-outline-success mb-3"><i class="fas fa-file-export"></i> Export data</a>
       @if(session('success'))
         <div class="alert alert-success">
           {{session('success')}}

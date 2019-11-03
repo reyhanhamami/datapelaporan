@@ -112,8 +112,8 @@
 <script type="text/javascript">
     $(document).ready(function(){
     // Format mata uang.
-    $('#jual').mask('000.000.000', {reverse: true});
-    $('#beli').mask('000.000.000', {reverse: true});    
+    // $('#jual').mask('000.000.000', {reverse: true});
+    // $('#beli').mask('000.000.000', {reverse: true});    
     })
 </script>
 @endsection('scriptExternal')

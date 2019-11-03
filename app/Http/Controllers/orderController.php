@@ -7,6 +7,7 @@ use App\customer;
 use App\expedisi;
 use App\barang_order;
 use App\barang;
+use Auth;
 use App\ecommerce;
 use Illuminate\Support\Facades\DB;  
 use Illuminate\Http\Request;
@@ -89,38 +90,32 @@ class orderController extends Controller
         $barangorder = $request->barang_order;
         $beliberapa_order = $request->beliberapa_order;
         $note_order = $request->note_order;
-        foreach ($barang as $bar) {
-            $tes = $bar->harga_jual; 
-            $beli = implode($beliberapa_order,",");
-            $kurang = (int) $tes * (int) $beliberapa_order;
-            $data['barang_order'] = implode($barangorder,",");
-                    foreach($barangorder as $ba) {
-                        $barang_order = new barang_order;
-                        $barang_order->id_order = $data['id_order'];
-                        $barang_order->id_barang = $ba;
-                        $barang_order->subtotal = $kurang;
-                        $barang_order->save();
-                    }
+        foreach ($request->barang_order as $index => $barang) {
+            $barang_order = new barang_order;
+            $barang_order->id_reseller = Auth::user()->id;
+            $barang_order->id_order = $data['id_order'];
+            $barang_order->id_barang = $request->barang_order[$index];
+            $barang_order->subtotal = $request->subtotal[$index];
+            $barang_order->stock_berkurang = $request->beliberapa_order[$index];
+            $barang_order->note_order = $request->note_order[$index];
+            $barang_order->save();
         }
-        $data['beliberapa_order'] = implode($beliberapa_order,",");
-        $data['note_order'] = implode($note_order,",");
-        // foreach($request->barang_order as $barang){
-        //     foreach($request->beliberapa_order as $beli){
-        //         foreach($request->note_order as $note) {
-        //             foreach($barangs as $bar){
-        //                 $subtotal = $bar->harga_jual * $beli ;
-                        
-        //                 $barang_order = new barang_order;
-        //                 $barang_order->id_order = $data['id_order'];
-        //                 $barang_order->id_barang = $barang;
-        //                 $barang_order->subtotal = $subtotal;
-        //                 $barang_order->save
-        //             }           
-        //         }
-        //     } 
-        // }
-        // Order::create($data);
-        // return redirect()->route('order')->with('success','List order berhasil dibuat');
+        
+        $order = new order;
+        $order->id_order = $data['id_order'];
+        $order->tanggal_order = $data['tanggal_order'];
+        $order->reseller_order = Auth::user()->id; 
+        $order->pengirim_order = $request->pengirim_order;
+        $order->telepon_order = $request->telepon_order;
+        $order->ecommerce_order = $request->ecommerce_order;
+        $order->expedisi_order = $request->expedisi_order;
+        $order->ongkir_order = $request->ongkir_order;
+        $order->total_order = $request->total;
+        $order->customer_order = $request->customer_order;
+        $order->resiotomatis_order = $request->resiotomatis_order;
+        $order->save();
+
+        return redirect()->route('status_order')->with('success','Pesanan customer berhasil dibuat');
     }
 
     /**

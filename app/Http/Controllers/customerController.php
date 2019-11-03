@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\customer;
 use Illuminate\Http\Request;
+use App\Exports\CustomerExport;
+use Excel;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 
 class customerController extends Controller
@@ -18,6 +21,14 @@ class customerController extends Controller
         $customer = Customer::orderBy('nama_customer','ASC')->paginate(10);
         return view('customer.customer', compact('customer'));
     }
+
+    public function exportExcel()
+    {
+        
+        $nama =  "customer-".date('dMY').".xlsx";
+        return Excel::download(new CustomerExport, $nama);
+    }
+
     public function cari(request $request)
     {
         $cari = $request->cari;
