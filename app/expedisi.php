@@ -10,6 +10,12 @@ class expedisi extends Model
     protected $fillable = ['kode_expedisi','nama_expedisi'];
     protected $primaryKey = 'id_expedisi';
 
+    // one to many order 
+    public function order()
+    {
+        return $this->hasMany('App\order','id_expedisi');
+    }
+
     protected static function boot()
     {
         parent::boot();

@@ -85,7 +85,7 @@ class orderController extends Controller
         $barang = Barang::where('id_barang','=', $request->barang_order)->get();
         $barang->toArray();
         $data = $request->all();
-        $data['id_order'] = date('dmY-His');
+        $data['id_order'] = date('dmYHis');
         $data['tanggal_order'] = date('D,d-M-Y');
         $barangorder = $request->barang_order;
         $beliberapa_order = $request->beliberapa_order;

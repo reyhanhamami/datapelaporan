@@ -18,8 +18,9 @@ class barang extends Model
     // relasi many to many ke order 
     public function order()
     {
-         return $this->belongsToMany(Order::class, 'barang_order','id_barang','id_order');
+        return $this->belongsToMany('App\order','barang_order','id_barang','id_order');
     }
+
     protected static function boot()
     {
         parent::boot();

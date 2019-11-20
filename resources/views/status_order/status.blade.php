@@ -23,7 +23,7 @@
       <!-- Default Light Table -->
             <div class="row">
               <div class="col">
-                <div class="card card-small mb-4">
+                <div class="card card-small mb-4 table-responsive">
                   <div class="card-header border-bottom">
                     <h6 class="m-0 d-inline">Status Order Customer</h6>
                 
@@ -43,23 +43,23 @@
                       </thead>
                       <tbody>
                         <!-- looping table -->
-                        @foreach($order as $as)
+                        @foreach($order as $or)
                         <tr>
                           <td>{{$loop->iteration}}</td>
-                          <td>{{$as->tanggal_order}}</td>
-                          <td>{{$as->customer->nama_customer}}</td>
+                          <td>{{$or->tanggal_order}}</td>
+                          <td>{{$or->customer['nama_customer']}}</td>
                           <td>
-                            <ul>
-                            @foreach($as->barang as $bar)
+                            <ul style="padding-left: 14px;">
+                              @foreach($or->barang as $bar)
                               <li>{{$bar->nama_barang}}</li>
-                            @endforeach
+                              @endforeach
                             </ul>
                         
                           </td>
                           <td><i class="fas fa-circle text-danger"></i> Belum dipacking</td>
                           <td><img src="{{url('images/avatars/foto.png')}}" width="70"></td>
                           <td>
-                              <a href="#" class="btn btn-outline-info btn-sm"><i class="fas fa-edit"></i>Edit</a>
+                              <a href="{{url('status_order/editinputresi/'.$or->id_order)}}" class="btn btn-outline-info btn-sm"><i class="fas fa-hand-holding-heart"></i> Proses</a>
                               <a href="#" class="btn btn-outline-primary btn-sm"><i class="fas fa-info-circle"></i>Detail</a>
                               <form action="" method="post" class="d-inline">
                               @csrf 

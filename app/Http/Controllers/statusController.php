@@ -6,7 +6,10 @@ use Illuminate\Http\Request;
 use App\order;
 use App\barang;
 use App\customer;
+use App\Expedisi;
+use App\User;
 use App\barang_order;
+use PDF;
 use Illuminate\Support\Facades\DB;
 class statusController extends Controller
 {
@@ -17,10 +20,52 @@ class statusController extends Controller
      */
     public function index()
     {
-        $joincustomer = DB::table('order')->join('customer','customer_order','=','id_customer')->select('customer.nama_customer','order.*')->get();
         $order = Order::get();
-        $customer = Customer::get();
-        return view('status_order.status', compact('order','joincustomer','customer'));
+        return view('status_order.status', compact('order'));
+    }
+    
+    // untuk proses tampilin detail dan form upload foto
+    public function proses(order $order)
+    {
+       
+        $expedisi = Expedisi::get();
+        $pengirim = User::get();
+        $barang = Barang::get();
+        $joinbarang = DB::table('barang_order')->join('barang','barang.id_barang','=','barang_order.id_barang')->get();
+        $barangorder = Barang_order::get();
+        return view('status_order.proses', compact('order','expedisi','pengirim','barangorder','barang','joinbarang'));
+    }
+
+    // untuk menampilkan form input resi 
+    public function editinputresi(order $order)
+    {
+        return view('status_order.inputresi', compact('order'));
+    }
+
+    // proses update input resi 
+    public function prosesinputresi(Request $request, order $order)
+    {
+        $request->validate([
+            'resiotomatis_order' => 'required'
+        ]);
+
+        Order::where('id_order',$order->id_order)
+                ->update([
+                    'resiotomatis_order' => $request->resiotomatis_order
+                ]);
+        return redirect('/status_order/proses/'.$order->id_order);
+    }
+
+    // menampilkan order untuk print 
+    public function cetakorder(order $order)
+    {
+        $expedisi = Expedisi::get();
+        $pengirim = User::get();
+        $joinbarang = DB::table('barang_order')->join('barang','barang.id_barang','=','barang_order.id_barang')->get();
+
+        // preview pdf and print  
+        $pdf = PDF::loadView('status_order.cetakorder', compact('order','expedisi','pengirim','joinbarang'));
+        return $pdf->stream("filename.pdf", array("Attachment" => false));
     }
 
     /**

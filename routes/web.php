@@ -112,4 +112,9 @@ Route::group(['middleware' => ['auth']], function(){
 // route untuk status 
 Route::group(['middleware' => ['auth']], function(){
     Route::get('/status_order', 'statusController@index')->name('status_order');
+    Route::get('/status_order/editinputresi/{order}', 'statusController@editinputresi');
+    Route::patch('/status_order/inputresi/{order}', 'statusController@prosesinputresi');
+    Route::get('/status_order/proses/{order}', 'statusController@proses')->name('proses');
+    Route::get('/status_order/PreviewPrint/{order}', 'statusController@cetakorder');
 }); 
+
