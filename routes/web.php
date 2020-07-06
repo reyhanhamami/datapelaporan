@@ -11,81 +11,78 @@
 |
 */
 
-Route::get('/', function () {
-    return view('auth.login');
-});
-
+// Route::get('/', function () {
+//     return view('auth.login');
+// });
+// route untuk login
+    Route::get('/login', 'LoginController@getLogin')->name('login');
+    Route::post('/login', 'LoginController@login')->name('postLogin');
+     // route untuk logout
+    Route::get('logout', 'LoginController@logout')->name('logout')->middleware('auth');
 // route password
-Auth::routes([
-    'register' => false,
-]);
+// Auth::routes([
+//     'register' => false,
+// ]);
 
 // route dashboard
-Route::get('/home', 'HomeController@index')->name('home');
+Route::group(['middleware' => ['auth']], function(){
+    Route::get('/home', 'HomeController@index')->name('home');
+    Route::get('/', 'HomeController@index');
+});
 
 // route data keuagan
-
-// route add stock barang
 Route::group(['middleware' => ['auth']], function(){
-Route::get('/barang','barangController@index')->name('barang');
-Route::get('/barang/add','barangController@create')->name('addbarang');
-Route::post('/barang/add','barangController@store')->name('storebarang');
-Route::delete('/barang/delete/{barang}','barangController@destroy');
-Route::get('/barang/edit/{barang}','barangController@edit');
-Route::patch('/barang/edit/{barang}','barangController@update');
-Route::get('/barang/cari', 'barangController@cari')->name('caribarang');
+    Route::get('/keuangan', 'keuanganController@index')->name('keuangan');
+    Route::get('/keuangan/bukti/{tdonasi}', 'keuanganController@getbukti');
+    Route::patch('/keuangan/inputbukti/{bukti_pembayaran}', 'keuanganController@inputbukti');
+    Route::get('/keuangan/validasipembayaran/{bukti_pembayaran}','keuanganController@validasipembayaran');
+    Route::patch('/keuangan/prosesvalidasi/{bukti_pembayaran}','keuanganController@prosesvalidasi');
+    Route::get('/keuangan/notifpembayaran','keuanganController@notifpembayaran')->name('notifpembayaran');
 });
 
-// route kategori   
+// route data edc 
 Route::group(['middleware' => ['auth']], function(){
-    Route::get('/barang/kategori', 'kategoriController@create')->name('addkategori');
-    Route::post('/barang/kategori', 'kategoriController@store')->name('storekategori');
-    Route::delete('/barang/kategori/hapus/{kategori}', 'kategoriController@destroy');
-    Route::get('/barang/kategori/edit/{kategori}', 'kategoriController@edit');
-    Route::patch('/barang/kategori/edit/{kategori}', 'kategoriController@update');
+    Route::get('/DataEdc','stock_movementController@index')->name('dataedc');
+    Route::get('/inputbuktitransfer','stock_movementController@inputtransfer')->name('inputtransfer');
+    Route::post('/savebuktitransfer','stock_movementController@savebuktitransfer')->name('savebuktitransfer');
+    Route::delete('deletebuktitransfer/{z_trf}','stock_movementController@deletebuktitransfer');
+    Route::get('/buktitransfer','stock_movementController@buktitransfer')->name('buktitransfer');
+    Route::get('/buktitransfer/{id}', 'stock_movementController@geteditbuktitransfer')->name('geteditbuktitransfer');
+    Route::post('/buktitransfer/sip', 'stock_movementController@postbuktitransfer')->name('postbuktitransfer');
+    Route::get('/jsonbuktitransfer','stock_movementController@jsonbuktitransfer')->name('jsonbuktitransfer');
+    Route::post('/inputbuktitransfer','stock_movementController@zsimpan')->name('zsimpan');
+    Route::get('/carinama','stock_movementController@carinama');
+    Route::get('/getvaluenama','stock_movementController@getvaluenama');
+    Route::get('/transaksipertanggal/{tgl}','stock_movementController@transaksipertanggal');
+    Route::get('/jsontransaksipertanggal/{tgl}','stock_movementController@json_transaksipertanggal');
+    Route::get('/verifotomatis/{no_kwitansi}/{id_tr}','stock_movementController@verifotomatis');
+    Route::get('/editpengesahandonasi/{pengesahan}','stock_movementController@editpengesahandonasi');
+    Route::get('/cekperverifikasi/{id}/{tgl}/{tanggal}/{jmh}/{sumber}','stock_movementController@cekperverifikasi');
+    Route::patch('/editpengesahandonasi/edit/{no_kwitansi}','stock_movementController@updatepengesahan');
+    Route::get('/tdonasidetaileditkd/{kd}','stock_movementController@tdonasidetaileditkd');
+    Route::post('/tdonasidetaileditkdupdate','stock_movementController@tdonasidetaileditkdupdate')->name('tdonasi.update');
+    Route::post('/tdonasidetaildelete/{kd}','stock_movementController@tdonasidetaildelete')->name('tdonasi.delete');
+    Route::post('/uploadz_trf','stock_movementController@upload')->name('edc.upload');
+    // Route::patch('/tdonasidetaileditkdupdate/{kd}','stock_movementController@tdonasidetaileditkdupdate')->name('tdonasi.update');
 });
 
-// route master customer 
+// route untuk donasi 
 Route::group(['middleware' => ['auth']], function(){
-    Route::get('/customer','customerController@index')->name('customer');
-    Route::get('customer/add','customerController@create')->name('addcustomer');
-    Route::post('customer/add','customerController@store')->name('storecustomer');
-    Route::delete('customer/{customer}','customerController@destroy');
-    Route::get('customer/edit/{customer}','customerController@edit');
-    Route::patch('customer/edit/{customer}','customerController@update');
-    Route::get('customer/cari','customerController@cari')->name('caricustomer');
-    Route::get('customer/exportExcel','customerController@exportExcel')->name('exportExcel');
+    Route::get('/donasi', 'donasiController@index')->name('donasi');
+    Route::get('/carihp','donasiController@carihp')->name('carihp');
+    Route::get('/cariemail','donasiController@cariemail')->name('cariemail');
+    Route::get('/getvaluewakif','donasiController@getvaluewakif')->name('valuewakif');
+    Route::post('donasi/storedonasi','donasiController@store')->name('storedonasi');
+    Route::get('donasi/tabledonasi', 'donasiController@tabledonasi')->name('tabledonasi');
+    Route::get('deletedonasi/{no_kwitansi}', 'donasiController@deletedonasi')->name('deletedonasi');
+    Route::get('uploadweb/{no_kwitansi}', 'donasiController@uploadweb')->name('uploadweb');
+    Route::post('getcabang', 'donasiController@getcabang')->name('getcabang');
+    Route::post('getdana', 'donasiController@getdana')->name('getdana');
 });
 
-// route master vendor 
+// route untuk verifikasi transfer ac_tbuku_bank 
 Route::group(['middleware' => ['auth']], function(){
-    Route::get('/vendor', 'vendorController@index')->name('vendor');
-    Route::get('vendor/add', 'vendorController@create')->name('addvendor');
-    Route::post('vendor/add', 'vendorController@store')->name('storevendor');
-    Route::delete('vendor/{vendor}', 'vendorController@destroy');
-    Route::get('vendor/edit/{vendor}', 'vendorController@edit');
-    Route::patch('vendor/edit/{vendor}', 'vendorController@update');
-    Route::get('vendor/cari', 'vendorController@cari')->name('carivendor');
-});
-
-// route master expedisi
-Route::group(['middleware' => ['auth']], function(){
-    Route::get('/expedisi','expedisiController@index')->name('expedisi');
-    Route::get('expedisi/add','expedisiController@create')->name('addexpedisi');
-    Route::post('expedisi/add','expedisiController@store')->name('storeexpedisi');
-    Route::delete('expedisi/{expedisi}','expedisiController@destroy');
-    Route::get('expedisi/{expedisi}','expedisiController@edit');
-    Route::patch('expedisi/edit/{expedisi}','expedisiController@update');
-});
-
-// route master e-commerce
-Route::group(['middleware' => ['auth']], function(){
-    Route::get('/ecommerce', 'ecommerceController@index')->name('ecommerce');
-    Route::get('ecommerce/add', 'ecommerceController@create')->name('add');
-    Route::get('ecommerce/edit/{ecommerce}', 'ecommerceController@edit');
-    Route::patch('ecommerce/edit/{ecommerce}', 'ecommerceController@update');
-    Route::post('ecommerce/add', 'ecommerceController@store')->name('store');
-    Route::delete('ecommerce/{ecommerce}', 'ecommerceController@destroy');
+    Route::get('/verifikasiTransfer','ac_tbuku_bankController@index')->name('verifikasi');
 });
 
 // route master reseller
@@ -99,22 +96,12 @@ Route::group(['middleware' => ['auth']], function(){
     Route::get('reseller/cari', 'resellerController@cari');
 });
 
-// route untuk reseller input pesanan 
+// route wakif 
 Route::group(['middleware' => ['auth']], function(){
-    Route::get('/order', 'orderController@index')->name('order');
-    Route::get('/cari-telepon', 'orderController@caritelepon');
-    Route::get('/getbarang', 'orderController@getbarang');
-    Route::get('/caribarang', 'orderController@caribarang');
-    Route::post('/order/add', 'orderController@store')->name('storeorder');
-    // Route::get('/order', 'orderController@fetch')->name('fetch');
+    Route::get('/wakif','wakifController@index')->name('wakif');
+    Route::get('/jsonwakif','wakifController@jsonwakif')->name('jsonwakif');
+    Route::get('/wakif/history/{customerno}','wakifController@historywakif')->name('historywakif');
+    Route::get('/wakif/tes','wakifController@tes')->name('tes');
+    Route::get('/wakif/urlpdf/{customerno}/{tgl}','wakifController@urlpdf')->name('urlpdf');
 });
-
-// route untuk status 
-Route::group(['middleware' => ['auth']], function(){
-    Route::get('/status_order', 'statusController@index')->name('status_order');
-    Route::get('/status_order/editinputresi/{order}', 'statusController@editinputresi');
-    Route::patch('/status_order/inputresi/{order}', 'statusController@prosesinputresi');
-    Route::get('/status_order/proses/{order}', 'statusController@proses')->name('proses');
-    Route::get('/status_order/PreviewPrint/{order}', 'statusController@cetakorder');
-}); 
 

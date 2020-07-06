@@ -19,6 +19,7 @@ class VerifyCsrfToken extends Middleware
      * @var array
      */
     protected $except = [
-        //
+        'http://al-faqar.bwa.id:88/donasi/deletedonasi/*',
+        'http://al-faqar.bwa.id:88/donasi/tdonasidetaildelete/*',
     ];
 }

@@ -2,200 +2,78 @@
 
     @section('title','Dashboard')
 
-    @section('sub','Data Penjualan')
+    @section('sub','Data')
 
     @section('konten')
-     <!-- Small Stats Blocks -->
-            <div class="row">
-              <div class="col-lg col-md-6 col-sm-6 mb-4">
-                <div class="stats-small stats-small--1 card card-small">
-                  <div class="card-body p-0 d-flex">
-                    <div class="d-flex flex-column m-auto">
-                      <div class="stats-small__data text-center">
-                        <span class="stats-small__label text-uppercase">Stock Produk</span>
-                        <i class="fas fa-tags"></i>
-                        <h6 class="stats-small__value count my-3">2,390</h6>
-                      </div>
-                      <div class="stats-small__data">
-                        <span class="stats-small__percentage stats-small__percentage--increase">4.7%</span>
-                      </div>
-                    </div>
-                    <canvas height="120" class="blog-overview-stats-small-1"></canvas>
-                  </div>
-                </div>
-              </div>
-              <div class="col-lg col-md-6 col-sm-6 mb-4">
-                <div class="stats-small stats-small--1 card card-small">
-                  <div class="card-body p-0 d-flex">
-                    <div class="d-flex flex-column m-auto">
-                      <div class="stats-small__data text-center">
-                        <span class="stats-small__label text-uppercase">Total Produk</span>
-                        <i class="fas fa-cubes"></i>
-                        <h6 class="stats-small__value count my-3">182</h6>
-                      </div>
-                      <div class="stats-small__data">
-                        <span class="stats-small__percentage stats-small__percentage--increase">12.4%</span>
-                      </div>
-                    </div>
-                    <canvas height="120" class="blog-overview-stats-small-2"></canvas>
-                  </div>
-                </div>
-              </div>
-              <div class="col-lg col-md-4 col-sm-6 mb-4">
-                <div class="stats-small stats-small--1 card card-small">
-                  <div class="card-body p-0 d-flex">
-                    <div class="d-flex flex-column m-auto">
-                      <div class="stats-small__data text-center">
-                        <span class="stats-small__label text-uppercase">Total Utang Reseller</span>
-                        <i class="fas fa-balance-scale"></i>
-                        <h6 class="stats-small__value count my-3">20.128,147</h6>
-                      </div>
-                      <div class="stats-small__data">
-                        <span class="stats-small__percentage stats-small__percentage--decrease">3.8%</span>
-                      </div>
-                    </div>
-                    <canvas height="120" class="blog-overview-stats-small-3"></canvas>
-                  </div>
-                </div>
-              </div>
-              <div class="col-lg col-md-4 col-sm-6 mb-4">
-                <div class="stats-small stats-small--1 card card-small">
-                  <div class="card-body p-0 d-flex">
-                    <div class="d-flex flex-column m-auto">
-                      <div class="stats-small__data text-center">
-                        <span class="stats-small__label text-uppercase">Packing</span>
-                        <i class="fas fa-hand-holding-heart"></i>
-                        <h6 class="stats-small__value count my-3">1,413</h6>
-                      </div>
-                      <div class="stats-small__data">
-                        <span class="stats-small__percentage stats-small__percentage--increase">12.4%</span>
-                      </div>
-                    </div>
-                    <canvas height="120" class="blog-overview-stats-small-4"></canvas>
-                  </div>
-                </div>
-              </div>
-              <div class="col-lg col-md-4 col-sm-12 mb-4">
-                <div class="stats-small stats-small--1 card card-small">
-                  <div class="card-body p-0 d-flex">
-                    <div class="d-flex flex-column m-auto">
-                      <div class="stats-small__data text-center">
-                        <span class="stats-small__label text-uppercase">Pesanan belum selesai</span>
-                        <i class="fas fa-truck-loading"></i>
-                        <h6 class="stats-small__value count my-3">17,281</h6>
-                      </div>
-                      <div class="stats-small__data">
-                        <span class="stats-small__percentage stats-small__percentage--decrease">2.4%</span>
-                      </div>
-                    </div>
-                    <canvas height="120" class="blog-overview-stats-small-5"></canvas>
-                  </div>
-                </div>
+    <div class="col col-md-12 col-sm-12 mb-4">
+      <div class="card card-small">
+        <div class="card-header border-bottom">
+          <h6 class="m-0">Shortcut</h6>
+        </div>
+        <div class="card-body p-0">
+          <div class="container my-3">
+            <h6 class="text-center text-success"><i class="fas fa-plus-circle"></i> Tambah data</h6>
+            <div class="row ">
+              <div class="col justify-content-center d-flex">
+                <a href="{{route('donasi')}}" class="btn btn-success btn-sm mr-2"><i class="fas fa-plus"></i> Add Donasi</a>
+                <a href="" class="btn btn-success btn-sm mr-2 disabled"><i class="fas fa-plus"></i> Add Program</a>
+                <a href="" class="btn btn-success btn-sm mr-2 disabled"><i class="fas fa-plus"></i> Add Project</a>
+                <a href="" class="btn btn-success btn-sm mr-2 disabled"><i class="fas fa-plus"></i> Add Jaringan</a>
+                <a href="" class="btn btn-success btn-sm mr-2 disabled"><i class="fas fa-plus"></i> Add Kas</a>
+                <a href="" class="btn btn-success btn-sm mr-2 disabled"><i class="fas fa-plus"></i> Add User</a>
+                <a href="{{route('inputtransfer')}}" class="btn btn-success btn-sm mr-2"><i class="fas fa-plus"></i> Add bukti trf EDC</a>
               </div>
             </div>
-            <!-- End Small Stats Blocks section 1-->
-            <!-- start section 2  -->
-            <div class="row">
-
-              <div class="col-lg col-md-6 col-sm-6 mb-4">
-                <div class="stats-small stats-small--1 card card-small">
-                  <div class="card-body p-0 d-flex">
-                    <div class="d-flex flex-column m-auto">
-                      <div class="stats-small__data text-center">
-                        <span class="stats-small__label text-uppercase">Notif Pembayaran Reseller</span>
-                      </div>
-                      <div class="nav-link-icon__wrapper text-center">
-                        <i class="fas fa-wallet"></i>
-                        <span class="badge badge-pill badge-info">2</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+            <h6 class="text-center text-danger mt-3"><i class="fas fa-book"></i> Lihat Data</h6>
+            <div class="row ">
+              <div class="col justify-content-center d-flex">
+                <a href="{{route('tabledonasi')}}" class="btn btn-danger btn-sm text-white mr-2"><i class="fas fa-eye"></i> Donasi</a>
+                <a href="" class="btn btn-danger btn-sm text-white mr-2 disabled"><i class="fas fa-eye"></i> Donasi Per Rekening</a>
+                <a href="" class="btn btn-danger btn-sm text-white mr-2 disabled"><i class="fas fa-eye"></i> Donasi Per Jaringan</a>
+                <a href="" class="btn btn-danger btn-sm text-white mr-2 disabled"><i class="fas fa-eye"></i> Donasi Per Fundraiser</a>
+                <a href="" class="btn btn-danger btn-sm text-white mr-2 disabled"><i class="fas fa-eye"></i> Donasi Per Project</a>
+                <a href="{{route('verifikasi')}}" class="btn btn-danger btn-sm text-white mr-2"><i class="fas fa-eye"></i> Donasi Per EDC</a>
+                <a href="{{route('buktitransfer')}}" class="btn btn-danger btn-sm text-white mr-2"><i class="fas fa-eye"></i> Bukti Transfer</a>
               </div>
-
-              <div class="col-lg col-md-6 col-sm-6 mb-4">
-                <div class="stats-small stats-small--1 card card-small">
-                  <div class="card-body p-0 d-flex">
-                    <div class="d-flex flex-column m-auto">
-                      <div class="stats-small__data text-center">
-                        <span class="stats-small__label text-uppercase">Pesanan telah selesai</span>
-                      </div>
-                      <div class="nav-link-icon__wrapper text-center">
-                        <i class="fas fa-truck-loading"></i>
-                        <span class="badge badge-pill badge-success">5</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-               
-            </div><!-- end row  section 2-->
-
-            <div class="row">
-              <!-- Top Referrals Component section 3-->
-              <div class="col-12 mb-4">
-                <div class="card shadow">
-                  <div class="card-header border-bottom">
-                    <h6 class="m-0 d-inline">List Reseller</h6>
-                    <!-- search  -->
-                     <form action="#" class="main-sidebar__search border-left d-sm-flex float-right">
-                      <div class="input-group input-group-seamless ml-3">
-                        <div class="input-group-prepend">
-                          <div class="input-group-text">
-                            <i class="fas fa-search"></i>
-                          </div>
-                        </div>
-                        <input class="navbar-search form-control" type="text" placeholder="Cari Reseller..." aria-label="Search"> </div>
-                    </form>
-                    <!-- end search  -->
-                  </div>
-                  <div class="card-body p-0">
-                    <ul class="list-group list-group-small list-group-flush">
-                      <li class="list-group-item d-flex px-3">
-                        <span class="text-semibold text-fiord-blue">warungSebelah</span>
-                        <span class="ml-auto text-right text-semibold text-reagent-gray">depok</span>
-                      </li>
-                      <li class="list-group-item d-flex px-3">
-                        <span class="text-semibold text-fiord-blue">Kelontongan</span>
-                        <span class="text-semibold text-fiord-blue ml-2">Total Hutang : Rp.200.000</span>
-                        <span class="ml-auto text-right text-semibold text-reagent-gray">Jakarta Timur</span>
-                        <a href="#" class="ml-2 text-right text-danger">Tagih</a>
-                      </li>
-                      <li class="list-group-item d-flex px-3">
-                        <span class="text-semibold text-fiord-blue">Gretongan</span>
-                        <span class="ml-auto text-right text-semibold text-reagent-gray">Jakarta Selatan</span>
-                      </li>
-                      <li class="list-group-item d-flex px-3">
-                        <span class="text-semibold text-fiord-blue">TokoAja</span>
-                        <span class="ml-auto text-right text-semibold text-reagent-gray">Pekayon</span>
-                      </li>
-                      <li class="list-group-item d-flex px-3">
-                        <span class="text-semibold text-fiord-blue">GelarLapak</span>
-                        <span class="ml-auto text-right text-semibold text-reagent-gray">Cibubur</span>
-                      </li>
-                      <li class="list-group-item d-flex px-3">
-                        <span class="text-semibold text-fiord-blue">KakiLima</span>
-                        <span class="ml-auto text-right text-semibold text-reagent-gray">Jogja</span>
-                      </li>
-                    </ul>
-                  </div>
-                  <div class="card-footer border-top">
-                    <div class="row">
-                      <div class="col">
-                        <select class="custom-select custom-select-sm">
-                          <option selected>Last Week</option>
-                          <option value="1">Today</option>
-                          <option value="2">Last Month</option>
-                          <option value="3">Last Year</option>
-                        </select>
-                      </div>
-                      <div class="col text-right view-report">
-                        <a href="#">Full report &rarr;</a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <!-- End Top Referrals Component section 3-->
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+        <div class="row justify-content-center">
+        <div class="col-lg-2 col-md-2 col-sm-2 mb-4 justify-content-center d-flex">
+          <a href="{{route('wakif')}}" class="stats-small stats-small--1 card card-small btn btn-light">
+            <div class="card-body p-0 d-flex">
+              <div class="d-flex flex-column m-auto">
+              <i class="fas fa-users text-primary"></i>
+                <div class="stats-small__data text-center">
+                  <span class="stats-small__label text-uppercase text-primary">Jumlah Seluruh Wakif</span>
+                </div>
+                <div class="stats-small__data mt-2">
+                  <!-- <i class="text-primary"><?= number_format($wakif) ?></i> -->
+                </div>
+              </div>
+              <canvas height="76" class="blog-overview-stats-small-1 chartjs-render-monitor" style="display: block; width: 191px; height: 76px;" width="191"></canvas>
+            </div>
+          </a>
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 mb-4">
+          <a href="{{route('tabledonasi')}}" class="stats-small stats-small--1 card card-small btn btn-light">
+            <div class="card-body p-0 d-flex">
+              <div class="d-flex flex-column m-auto">
+              <i class="fas fa-hand-holding-usd text-primary"></i>
+                <div class="stats-small__data text-center">
+                  <span class="stats-small__label text-uppercase text-primary">Total donasi Tahun <?= date('Y') ?></span>
+                </div>
+                <div class="stats-small__data mt-2">
+                  <!-- <i class="text-primary">Rp. <?= number_format($jmh) ?></i> -->
+                </div>
+              </div>
+              <canvas height="80" class="blog-overview-stats-small-2 chartjs-render-monitor" style="display: block; width: 191px; height: 76px;" width="191"></canvas>
+            </div>
+          </a>
+        </div>
+        </div>
+    </div>
     @endsection

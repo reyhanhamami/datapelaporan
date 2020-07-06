@@ -28,32 +28,17 @@ class forHoverServiceProvider extends ServiceProvider
         if (Request::segment(1) == 'home') {
             $halaman = 'home';
         }
-        if (Request::segment(1) == 'keuangan') {
-            $halaman = 'keuangan';
+        if (Request::segment(1) == 'wakif') {
+            $halaman = 'wakif';
         }
-        if (Request::segment(1) == 'barang'){
-            $halaman = 'barang';
+        if (Request::segment(1) == 'donasi' or Request::segment(1) == 'inputbuktitransfer') {
+            $halaman = 'input';
         }
-        if (Request::segment(1) == 'customer'){
-            $halaman = 'customer';
+        if (Request::segment(1) == 'DataEdc' or Request::segment(1) == 'buktitransfer') {
+            $halaman = 'DataEdc';
         }
-        if(Request::segment(1) == 'vendor'){
-            $halaman = 'vendor';
-        }
-        if (Request::segment(1) == 'expedisi'){
-            $halaman = 'expedisi';
-        }
-        if (Request::segment(1) == 'ecommerce'){
-            $halaman = 'ecommerce';
-        }
-        if (Request::segment(1) == 'reseller'){
-            $halaman = 'reseller';
-        }
-        if (Request::segment(1) == 'order'){
-            $halaman = 'order';
-        }
-        if (Request::segment(1) == 'status_order'){
-            $halaman = 'status_order';
+        if (Request::segment(1) == 'verifikasiTransfer' or Request::segment(1) == 'tabledonasi') {
+            $halaman = 'laporan';
         }
 
         // untuk ngelempar variabel $halaman menjadi variabel global

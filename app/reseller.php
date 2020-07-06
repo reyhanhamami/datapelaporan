@@ -6,7 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class reseller extends Model
 {
-    public $table = "users";
+    protected $connection = 'mysql';
+    protected $table = "users";
     protected $fillable = ['name','email','telepon','password','foto','nama_akun','level'];
 
     protected $hidden = [

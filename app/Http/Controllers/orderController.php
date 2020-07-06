@@ -7,6 +7,7 @@ use App\customer;
 use App\expedisi;
 use App\barang_order;
 use App\barang;
+use App\bukti_pembayaran;
 use Auth;
 use App\ecommerce;
 use Illuminate\Support\Facades\DB;  
@@ -82,14 +83,24 @@ class orderController extends Controller
      */
     public function store(Request $request)
     {
+        $barang_order = $request->barang_order;
+        $max = Barang::where('id_barang','=',$barang_order)->pluck('stock_barang')->first();
+        $min = 1;
+        $request->validate([
+            'customer_order' => 'required',
+            'ecommerce_order' => 'required',
+            'expedisi_order' => 'required',
+            'ongkir_order' => 'required|integer',
+            'beliberapa_order' => 'between:'.$min.",".$max
+        ]);
         $barang = Barang::where('id_barang','=', $request->barang_order)->get();
         $barang->toArray();
         $data = $request->all();
         $data['id_order'] = date('dmYHis');
         $data['tanggal_order'] = date('D,d-M-Y');
         $barangorder = $request->barang_order;
-        $beliberapa_order = $request->beliberapa_order;
         $note_order = $request->note_order;
+        // save ke table barang_order 
         foreach ($request->barang_order as $index => $barang) {
             $barang_order = new barang_order;
             $barang_order->id_reseller = Auth::user()->id;
@@ -100,7 +111,9 @@ class orderController extends Controller
             $barang_order->note_order = $request->note_order[$index];
             $barang_order->save();
         }
+        // end save ke table barang order 
         
+        // save ke table order 
         $order = new order;
         $order->id_order = $data['id_order'];
         $order->tanggal_order = $data['tanggal_order'];
@@ -114,6 +127,16 @@ class orderController extends Controller
         $order->customer_order = $request->customer_order;
         $order->resiotomatis_order = $request->resiotomatis_order;
         $order->save();
+        // end save table order 
+
+        // save table bukti_pembayaran 
+        $bukti = new bukti_pembayaran;
+        $bukti->id_order = $data['id_order'];
+        $bukti->id_reseller = Auth::user()->id;
+        $bukti->id_customer = $request->customer_order;
+        $bukti->total = $request->total;
+        $bukti->save();
+        // end bukti_pembayaran
 
         return redirect()->route('status_order')->with('success','Pesanan customer berhasil dibuat');
     }
