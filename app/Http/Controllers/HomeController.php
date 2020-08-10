@@ -26,18 +26,18 @@ class HomeController extends Controller
      */
     public function index()
     {
-        // get customer count
-        $wakif = DB::connection('mysql')->table('customer')->count();
+        // // get customer count
+        // $wakif = DB::connection('mysql')->table('customer')->count();
 
-        // get total count berdasarkan tahun skrng 
-        $tahun = date('Y');
-        $tdonasi = DB::connection('sqlsrv')->table('tdonasi')
-        ->whereBetween('tgl_transaksi', array($tahun.'-01-01', date('Y-m-d')))->pluck('total');
-        $jmh = 0;
-        foreach ($tdonasi as $donasi) {
-            $jmh += $donasi;
-        }
+        // // get total count berdasarkan tahun skrng 
+        // $tahun = date('Y');
+        // $tdonasi = DB::connection('sqlsrv')->table('tdonasi')
+        // ->whereBetween('tgl_transaksi', array($tahun.'-01-01', date('Y-m-d')))->pluck('total');
+        // $jmh = 0;
+        // foreach ($tdonasi as $donasi) {
+        //     $jmh += $donasi;
+        // }
            
-        return view('home', compact('jmh','wakif'));
+        return view('home');
     }
 }

@@ -55,7 +55,7 @@ Route::group(['middleware' => ['auth']], function(){
     Route::get('/getvaluenama','stock_movementController@getvaluenama');
     Route::get('/transaksipertanggal/{tgl}','stock_movementController@transaksipertanggal');
     Route::get('/jsontransaksipertanggal/{tgl}','stock_movementController@json_transaksipertanggal');
-    Route::get('/verifotomatis/{no_kwitansi}/{id_tr}','stock_movementController@verifotomatis');
+    Route::get('/verifotomatis/{no_kwitansi}/{id_tr}/{agen}/{cabang}','stock_movementController@verifotomatis');
     Route::get('/editpengesahandonasi/{pengesahan}','stock_movementController@editpengesahandonasi');
     Route::get('/cekperverifikasi/{id}/{tgl}/{tanggal}/{jmh}/{sumber}','stock_movementController@cekperverifikasi');
     Route::patch('/editpengesahandonasi/edit/{no_kwitansi}','stock_movementController@updatepengesahan');
@@ -63,6 +63,7 @@ Route::group(['middleware' => ['auth']], function(){
     Route::post('/tdonasidetaileditkdupdate','stock_movementController@tdonasidetaileditkdupdate')->name('tdonasi.update');
     Route::post('/tdonasidetaildelete/{kd}','stock_movementController@tdonasidetaildelete')->name('tdonasi.delete');
     Route::post('/uploadz_trf','stock_movementController@upload')->name('edc.upload');
+    Route::post('/uploadz_trf_aja','stock_movementController@upload_aja')->name('edc.upload_aja');
     // Route::patch('/tdonasidetaileditkdupdate/{kd}','stock_movementController@tdonasidetaileditkdupdate')->name('tdonasi.update');
 });
 

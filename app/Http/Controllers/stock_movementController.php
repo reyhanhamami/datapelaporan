@@ -21,6 +21,7 @@ use App\Tdonasi_dtl;
 use App\Ac_tjurnal;
 use App\Ac_tjurnal_dtl;
 use App\Imports\transaksi_import;
+use App\Imports\transaksi_aja_import;
 use Maatwebsite\Excel\HeadingRowImport;
 use DataTables;
 use Illuminate\Http\Request;
@@ -67,17 +68,18 @@ class stock_movementController extends Controller
 
         return DataTables::of($detail)->make(true);
     }
-    public function verifotomatis($no_kwitansi, $id_tr)
+    public function verifotomatis(Request $request, $no_kwitansi, $id_tr, $agen, $cabang)
     {
-        $cabang = substr($no_kwitansi,4,3);
-        $cabang = (int) $cabang;
+        // dd($agen);
+        // $cabang = substr($no_kwitansi,4,3);
+        // $cabang = (int) $cabang;
         $array = array(
             'alur_kerja' => 'SAH',
             'sah' => 1,
-            'kd_cabang' => 1,
+            'kd_cabang' => (int) $cabang,
             'uid_edit' => Auth::user()->nm_login,
             'tgl_edit' => date('Y-m-d H:i:s'),
-            'kd_agen' => 712,
+            'kd_agen' => $agen,
             'ket' => $id_tr
         );
         $to_mgm = array(
@@ -471,6 +473,7 @@ class stock_movementController extends Controller
     }
     public function cekperverifikasi($id ,$tgl, $jmh, $sumber, $tanggal)
     {
+        $mcabang = mcabang::get();
         $getPdo = DB::connection('sqlsrv_user_lagi')->getPdo();
         $sql = "SELECT z_trf.id,z_trf.TglTRF,z_trf.RecAmt,z_trfd.*,inventory_stock_movement.code,inventory_stock_movement.contact,inventory_stock_movement.payment_type,agen,crm_contact.name,crm_contact.mobile
          FROM z_trf 
@@ -483,17 +486,15 @@ class stock_movementController extends Controller
 
         $detail->execute();
 
-
         $jmh = (int) $jmh;
         $tbuku_bank = DB::connection('sqlsrv')->table('ac_tbuku_bank')
         ->where('deskripsi','like', '%'.$sumber.'%')
         ->where('debet','=',$jmh)
-        ->where('tgl','like','%'.$tgl.'%')
+        ->where('tgl','>=',$tanggal)
         ->join('mkas','ac_tbuku_bank.kd_kas','mkas.kd_kas')
         ->select('mkas.nm_kas','ac_tbuku_bank.*')
         ->get();
-      
-        return view('edc.cekperverifikasi', compact('tbuku_bank','sumber','tanggal', 'detail'));
+        return view('edc.cekperverifikasi', compact('tbuku_bank','sumber','tanggal', 'detail','mcabang'));
     }
 
     public function tdonasidetaileditkd($kd)
@@ -543,7 +544,7 @@ class stock_movementController extends Controller
 
     }
 
-    // upload excel z_trf 
+   // upload excel z_trf 
     public function upload(Request $request){
         $error = Validator::make($request->all(),[
             'upload' => 'required|mimes:xls,xlsx'
@@ -557,49 +558,171 @@ class stock_movementController extends Controller
             $tes = Excel::toArray(new transaksi_import, $file);
 
             foreach ($tes as $te) {
-                // convert dd/mm/yyyy to yyyy-mm-dd trx
-                $getsettle = $te[0]['settlement_date'];
-                $changesettle = str_replace('/','-', $getsettle);
-                $settlement_dates = date('Y-m-d', strtotime($changesettle));
-                // bikin var untuk tampung looping total 
-                $tot = 0;
-                $z = new z_trf;
-                $z->TglTRF = $settlement_dates;
-                $z->save();
-                foreach ($te as $t) {
-                    // increase tot 
-                    $tot += $t['total_settlement'];
-                    // get id from z_trf 
-                    $id = $z->id;
+                if (isset($te[0]['trx']) ) {
+                    foreach ($te as $t) {
+                        // convert dd/mm/yyyy to yyyy-mm-dd trx
+                        $gettrx = $t['trx'];
+                        $change = str_replace('/','-',$gettrx);
+                        $trx = date('Y-m-d', strtotime($gettrx));
+    
+                        // convert dd/mm/yyyy to yyyy-mm-dd trx
+                        $getsettle = $t['settlement_date'];
+                        $changesettle = str_replace('/','-', $getsettle);
+                        $settlement_date = date('Y-m-d', strtotime($getsettle));
+    
+                        // insert to z_trfd 
+                        $z_trfd = new z_trfd;
+                        $z_trfd->TglTRF = $trx;
+                        $z_trfd->TglTRX = $trx;
+                        $z_trfd->TglSettlement = $settlement_date;
+                        $z_trfd->Amt = $t['total_settlement'];
+                        $z_trfd->RefID = substr($t['code'],1);
+                        $z_trfd->ReconCMS = 'Y';
+                        $z_trfd->paytype =  'TB';
+                        $z_trfd->save();
 
-                    // convert dd/mm/yyyy to yyyy-mm-dd trx
-                    $gettrx = $t['trx'];
-                    $change = str_replace('/','-',$gettrx);
-                    $trx = date('Y-m-d', strtotime($change));
-
-                    // convert dd/mm/yyyy to yyyy-mm-dd trx
-                    $getsettle = $t['settlement_date'];
-                    $changesettle = str_replace('/','-', $getsettle);
-                    $settlement_date = date('Y-m-d', strtotime($changesettle));
-
-                    // insert to z_trfd 
-                    $z_trfd = new z_trfd;
-                    $z_trfd->TglTRF = $trx;
-                    $z_trfd->TglTRX = $trx;
-                    $z_trfd->TglSettlement = $settlement_date;
-                    $z_trfd->Amt = $t['total_settlement'];
-                    $z_trfd->ReconCMS = 'Y';
-                    $z_trfd->paytype =  'FIN';
-                    $z_trfd->id_z_trf =  $id;
-                    $z_trfd->save();
-
+                        $cariztrf = z_trf::where('TglTRF','=',$settlement_date)->where('paytype','=','TB')->first();
+                        if ($cariztrf == null) {
+                            $z = new z_trf;
+                            $z->TglTRF = $settlement_date;
+                            $z->save();
+                        }
+                        if (isset($z)) {
+                            z_trfd::where('TglSettlement','=',$settlement_date)->where('paytype','=','TB')
+                            ->update([
+                                'id_z_trf' => $z->id,
+                            ]);
+                        }
+                        // cari tanggal settlement
+                        $caritgl = z_trfd::where('TglSettlement','=', $settlement_date)->where('paytype','=','TB')->pluck('Amt');
+                        $tots = 0;
+                        foreach ($caritgl as $plus) {
+                            $tots += $plus;
+                        }
+                        // var_dump($tots);
+                        z_trf::where('TglTRF','=',$settlement_date)->update([
+                            'NetAmt' => $tots,
+                            'RecAmt' => $tots,
+                            'rekening_sumber' => 'FINNET',
+                            'paytype' => 'TB',
+                        ]);
+                        // delete z_trfd yang tidak ada induknya 
+                        z_trfd::where('id_z_trf','=',null)->delete();
+                    }
                 }
-                z_trf::where('id','=',$z->id)->update([
-                    'NetAmt' => $tot,
-                    'RecAmt' => $tot,
-                    'rekening_sumber' => 'FINNET',
-                    'paytype' => 'FIN',
-                ]);
+                else 
+                {
+                    return response()->json(['failed' => 'silahkan edit data kosong lalu isi jadi trx di kolom excel']);
+                }
+               
+                return response()->json(['success' => 'File Berhasil diupload']);
+            }
+
+        }
+
+    }
+
+    // upload excel z_trf dari link aja
+    public function upload_aja(Request $request){
+        $error = Validator::make($request->all(),[
+            'upload_aja' => 'required|mimes:xls,xlsx'
+        ]);    
+        if ($error->fails()) {
+            return response()->json(['erorrs' => $error->errors()->all()]);
+        }
+        if ($request->hasFile('upload_aja')) {
+            $file = $request->file('upload_aja'); //get name file upload
+            // Excel::import(new transaksi_import, $file);
+            $tes = Excel::toArray(new transaksi_aja_import, $file);
+            foreach ($tes as $te) {
+                if ($te[0]['receipt_no']) {
+                    foreach ($te as $t) {
+                        // convert dd/mm/yyyy to yyyy-mm-dd trx
+                        $getcomp = $t['completion_time'];
+                        $changecomp = str_replace('/','-', $getcomp);
+                        $completion_time = date('Y-m-d H:i:s', strtotime($changecomp));
+
+                        $receipt_no = $t['receipt_no'];
+                        // klo receipt no sama tidak boleh masuk
+                        $rec_sama = z_trfd::where('RefID','=',$receipt_no)->first();
+                        $rec_samad = z_trf::where('refid','=',$receipt_no)->first();
+                        if ($rec_sama == null) {
+                            $details = $t['details'];
+                            $balance = $t['balance'];
+                            $paid_in = $t['paid_in'];
+                            $lasttanggal = '';
+                            if ($details == 'Withdraw of funds' and $balance == 0 and $rec_samad == null) {
+                                // untuk hilangkan minus
+                                $delmin = str_replace('-','',$t['withdrawn']);
+                                // insert ke z_trf
+                                $z_trf = new z_trf;
+                                $z_trf->TglTRF = $completion_time;
+                                $z_trf->NetAmt = $delmin;
+                                $z_trf->RecAmt = $delmin;
+                                $z_trf->rekening_sumber = '2020-191112010951001';
+                                $z_trf->refid = $t['receipt_no'];
+                                $z_trf->paytype = 'LAJ';
+                                $z_trf->save();
+                            } 
+                            if($paid_in != 0 or $paid_in != '') {
+                                // insert ke z_trfd 
+                                $z_trfd = new z_trfd;
+                                $z_trfd->TglTRF = $completion_time;
+                                $z_trfd->TglTRX = $completion_time;
+                                // $z_trfd->TglSettlement = $t['completion_time'];
+                                $z_trfd->Amt = $t['paid_in'];
+                                $z_trfd->RefID = $t['receipt_no'];
+                                $z_trfd->ReconCMS = 'Y';
+                                $z_trfd->paytype =  'LAJ';
+                                $z_trfd->save();
+                            }
+                            if($balance == 0) {
+                                // insert ke z_trfd 
+                                $z_trfd = new z_trfd;
+                                $z_trfd->TglTRF = $completion_time;
+                                $z_trfd->TglTRX = $completion_time;
+                                // $z_trfd->TglSettlement = $t['completion_time'];
+                                $z_trfd->Amt = $t['paid_in'];
+                                $z_trfd->RefID = $t['receipt_no'];
+                                $z_trfd->ReconCMS = 'Y';
+                                $z_trfd->paytype =  'LAJ';
+                                $z_trfd->save();
+                            }
+                        }
+                    }
+                } else {
+                    return response()->json(['failed' => 'Harap upload file dari Link Aja']);
+                }
+                //  cari dulu z_trf yang LAJ 
+                $data = z_trf::where('paytype','=','LAJ')->where('sudah','=', NULL)->get();
+                $jgnnull = z_trfd::where('paytype','=','LAJ')->where('id_z_trf','=',null)->get();
+                if (count($jgnnull) >= 0) {
+                    foreach ($data as $dat) {
+                        $tgl_trf = $dat['TglTRF'];
+                        $id = $dat['id'];
+                        // cari lagi detail2 yang tanggalnya kurang dari tgl_trf
+                        $loop_ztrfd = z_trfd::where('paytype','=','LAJ')->where('TglTRF','<=',$tgl_trf)->update([
+                                'id_z_trf' => $id
+                        ]);
+                        // update sudah 
+                        $sudah = z_trf::where('id','=',$id)->update([
+                            'sudah' => 'Y'
+                        ]);
+                    }
+                     $nullid = z_trfd::where('id_z_trf','=',null)->where('paytype','=','LAJ')->get();
+                    foreach ($nullid as $null) {
+                        $induk = z_trf::where('TglTRF','>=',$null->TglTRF)->where('paytype','=','LAJ')
+                        ->orderBy('TglTRF','ASC')
+                        ->pluck('id')
+                        ->first();
+
+                        z_trfd::where('TglTRF','=',$null->TglTRF)->where('paytype','=','LAJ')->update([
+                            'id_z_trf' => $induk
+                        ]);
+                    }
+                } 
+                
+                // looping z_trfd
                 return response()->json(['success' => 'File Berhasil diupload']);
             }
 

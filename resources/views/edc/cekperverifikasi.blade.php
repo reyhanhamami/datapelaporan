@@ -78,6 +78,21 @@
                     </h6>
                   </div>
                   <div class="card-body">
+                    <div class="row">
+                      <div class="col-3">
+                        <select name="cabang" id="cabang" class="form-control">
+                          @foreach($mcabang as $cab)
+                          <option value="{{$cab->ID}}">{{$cab->Nm}}</option>
+                          @endforeach
+                        </select>
+                      </div>
+                      <div class="col-3">
+                        <select name="agen" id="agen" class="form-control">
+                          <option value="712">Edc</option>
+                          <option value="181">Duta Keberkahan</option>
+                        </select>
+                      </div>
+                    </div>
                     <table class="table table-striped table-responsive-md" id="dataedc" style="width:100% !important">
                     <thead>
                         <tr>
@@ -103,7 +118,11 @@
                             }
                             elseif ($det['payment_type'] == "TB") {
                             $det['payment_type'] = str_replace($det['payment_type'], "FIN_", $det['payment_type']);
-                            } else
+                            }
+                            elseif ($det['payment_type'] == "LAJ") {
+                            $det['payment_type'] = str_replace($det['payment_type'], "LAJ_", $det['payment_type']);
+                            }
+                            else
                             {
                             $det['payment_type'] =  str_replace($det['payment_type'], "AJA_", $det['payment_type']);
                             }
@@ -161,12 +180,16 @@
     <script>
       var no_kwitansi;
       var id_tr = $('#id_tr').val();
+      var cabang;
+      var agen;
         // verif
         $(document).on('click','.verif',function(){
+            cabang = $('#cabang').on('change').val();
+            agen = $('#agen').on('change').val();
             no_kwitansi = $(this).attr('id');
             
             $.ajax({
-                url: "../../../../../verifotomatis/"+no_kwitansi+"/"+id_tr+"",
+                url: "../../../../../verifotomatis/"+no_kwitansi+"/"+id_tr+"/"+agen+"/"+cabang+"",
                 success:function(data)
                 {
                   location.reload();

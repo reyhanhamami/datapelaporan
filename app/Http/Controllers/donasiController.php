@@ -7,10 +7,10 @@ use Illuminate\Support\Facades\DB;
 use App\Mkas;
 use App\Magen;
 use App\mcabang;
-use App\Sc_pengguna;
 use App\Mlokasi;
 use App\Mprogram;
 use App\Mproject;
+use App\Sc_pengguna;
 use App\Mpelanggan;
 use App\Rf_propinsi;
 use App\Ac_tkm;
@@ -22,7 +22,6 @@ use App\wakif;
 use App\Ac_tjurnal_dtl;
 use Yajra\Datatables\Datatables;
 use Cache;
-use Session;
 use Auth;
 
 
@@ -121,14 +120,11 @@ class donasiController extends Controller
         ->pluck('cabang')->first();
         $ex = explode(';', $peng);
         $mcabang = DB::connection('sqlsrv')->table('mcabang')->select('ID','Nm')->whereIn('id',$ex)->get();
-
         $mkas = Mkas::select('kd_kas','nm_kas')->get();
         $magen = Magen::select('kd_agen','nm_agen')->get();
         $mprogram = Mprogram::select('kd_program','nm_program')->get();
         $mproject = Mproject::select('kd_project','nm_project')->get();
         $rf_propinsi = Rf_propinsi::select('kd_propinsi','nm_propinsi')->get();
-
-       
         
         return view('donasi.donasi', compact('mcabang','mkas','magen','mprogram','mproject','rf_propinsi','tdonasi'));
     }
@@ -162,6 +158,23 @@ class donasiController extends Controller
     }
 
    
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        //
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -170,8 +183,8 @@ class donasiController extends Controller
             'cabang' => 'required',
             'no_kwitansi' => 'required',
             'telp' => 'nullable|sometimes|numeric',
-            'nm_lengkap' => 'required|max:100',
-            'nm_wakif' => 'max:100',
+            'nm_lengkap' => 'required|max:50',
+            'nm_wakif' => 'max:50',
             'pos' => 'max:5',
             'hp' => 'nullable|sometimes|numeric|min:8',
             'email' => 'nullable|sometimes|email',
@@ -185,16 +198,20 @@ class donasiController extends Controller
         $no_kwitansi_sama = DB::connection('sqlsrv')->table('tdonasi')->where('no_kwitansi','like','%'.$request->no_kwitansi.'%')->get();
         $hp_sama = DB::connection('sqlsrv')->table('mpelanggan')->where('hp','=',$request->hp)->get();
         $email_sama = DB::connection('sqlsrv')->table('mpelanggan')->where('email','=',$request->email)->get();
+        
 
         // tanggal dan time hari ini 
         $datetime = date("Y-m-d H:i:s");
         // tahun dan bulan 20 02 
         $yearmonth = date('ym');
+       
         
         // tanggal transaksi dan setor dikasih jam detik menit 
+        $formattgltra = str_replace('/','-',$request->tgl_transaksi);
+        $formattglset = str_replace('/','-',$request->tgl_setor);
         $time = date("H:i:s");
-        $tgl_transaksi_time = date('Y-m-d'." ".$time, strtotime($request->tgl_transaksi));
-        $tgl_setor_time = date('Y-m-d'." ".$time, strtotime($request->tgl_setor));
+        $tgl_transaksi_time = date('Y-m-d'." ".$time, strtotime($formattgltra));
+        $tgl_setor_time = date('Y-m-d'." ".$time, strtotime($formattglset));
         
         $nokdjurnal = DB::connection('sqlsrv')->table('ac_tkm')->orderBy('tgl','desc')->orderBy('kd_tkm','desc')->where('kd_tkm','like','RVZ%')->pluck('kd_jurnal')->first();
         if ($nokdjurnal == NULL) {
@@ -202,6 +219,8 @@ class donasiController extends Controller
         } else {
             $kd_tkm = ++$nokdjurnal;
         }
+        
+       
 
         // deskripsi contoh donasi #20200214# Rek. Bni 1122200 
         $deskripsi = "Donasi#".date('Ymd')."#Rek.".substr($ambil_nm_kas[0],0,22);
@@ -489,29 +508,29 @@ class donasiController extends Controller
         // end looping 
       
         }
-         // api sms 
-        //  $message = 'Alhamdulillah, kami sudah menerima Donasi an. Bpk/Ibu '.trim($request->nm_lengkap).' 
-        //  senilai Rp '.number_format($request->total, 0, ',','.').', Semoga Wakaf/Donasi Anda menjadi Pahala yg Mengalir Abadi';
-        //     // Send notification message
+        //  api sms 
+         $message = 'Alhamdulillah, kami sudah menerima Donasi an. Bpk/Ibu '.trim($request->nm_lengkap).' 
+         senilai Rp '.number_format($request->total, 0, ',','.').', Semoga Wakaf/Donasi Anda menjadi Pahala yg Mengalir Abadi';
+            // Send notification message
 
-        //     $query = [
-        //         'userkey' => 'sp7hxw',
-        //         'passkey' => '123bwatop',
-        //         'nohp' => trim($request->hp),
-        //         'pesan' => $message,
-        //         'type' => 'otp',
-        //     ];
+            $query = [
+                'userkey' => 'sp7hxw',
+                'passkey' => '123bwatop',
+                'nohp' => trim($request->hp),
+                'pesan' => $message,
+                'type' => 'otp',
+            ];
 
-        //     $sms_gateway_url = 'https://alpha.zenziva.net/apps/smsapi.php';
+            $sms_gateway_url = 'https://alpha.zenziva.net/apps/smsapi.php';
 
-        //     $curl = curl_init();
+            $curl = curl_init();
 
-        //     $url = sprintf("%s?%s", $sms_gateway_url, http_build_query($query));
+            $url = sprintf("%s?%s", $sms_gateway_url, http_build_query($query));
 
-        //     curl_setopt($curl, CURLOPT_URL, $url);
-        //     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 
-        //     $result = curl_exec($curl);
+            $result = curl_exec($curl);
         
         return redirect()->route('tabledonasi')->with('success','Donasi Wakif berhasil dibuat');
     }
@@ -634,5 +653,4 @@ class donasiController extends Controller
         }
 
     }
-   
 }

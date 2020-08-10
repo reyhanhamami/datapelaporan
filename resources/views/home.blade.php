@@ -51,7 +51,6 @@
                   <span class="stats-small__label text-uppercase text-primary">Jumlah Seluruh Wakif</span>
                 </div>
                 <div class="stats-small__data mt-2">
-                  <!-- <i class="text-primary"><?= number_format($wakif) ?></i> -->
                 </div>
               </div>
               <canvas height="76" class="blog-overview-stats-small-1 chartjs-render-monitor" style="display: block; width: 191px; height: 76px;" width="191"></canvas>
@@ -67,7 +66,6 @@
                   <span class="stats-small__label text-uppercase text-primary">Total donasi Tahun <?= date('Y') ?></span>
                 </div>
                 <div class="stats-small__data mt-2">
-                  <!-- <i class="text-primary">Rp. <?= number_format($jmh) ?></i> -->
                 </div>
               </div>
               <canvas height="80" class="blog-overview-stats-small-2 chartjs-render-monitor" style="display: block; width: 191px; height: 76px;" width="191"></canvas>

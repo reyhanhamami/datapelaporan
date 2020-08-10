@@ -35,7 +35,6 @@
                                   <span class="input-group-text text-dark" id="basic-addon1">Donasi</span>
                                 </div> -->
                                 <select name="alur_kerja" id="alur_kerja" class="form-control @error('alur_kerja') is-invalid @enderror">
-                                  <option value="">-- Pilih Alur Kerja --</option>
                                   <option value="ENTRI">1 - Entri</option>
                                   <option value="VERIFIKASI">2 - Verifikasi</option>
                                   <option value="SAH">3 - Pengesahan</option>
@@ -55,7 +54,6 @@
                                   <span class="input-group-text text-dark" id="basic-addon1">Kantor</span>
                                 </div> -->
                                 <select name="cabang" id="cabang" class="form-control @error('cabang') is-invalid @enderror">
-                                  <option value="">-- Pilih Kantor --</option>
                                   @foreach($mcabang as $cabang)
                                   <option value="{{$cabang->ID}}">{{$cabang->Nm}}</option>
                                   @endforeach
@@ -670,15 +668,13 @@
     // masking tgl setor tgl_transaksi
     $('#tgl_transaksi').inputmask("datetime", {
       inputFormat: "dd/mm/yyyy",
-      outputFormat: "yyyy-mm-dd",
-      inputEventOnly:true,
-      date.split("/").reverse().join("/");
+      // outputFormat: "mm-dd-yyyy",
+      inputEventOnly:true
     });
     $('#tgl_setor').inputmask("datetime", {
       inputFormat : "dd/mm/yyyy",
-      outputFormat : "yyyy-mm-dd",
-      inputEventOnly : true,
-      date.split("/").reverse().join("/");
+      // outputFormat : "mm-dd-yyyy",
+      inputEventOnly : true
     });
     // script jika tgl setor lebih besar dari tgl transaksi dan tidak boleh pilih 2 bulan sebelumn
     // function notnow() {
