@@ -254,53 +254,115 @@ class stock_movementController extends Controller
     }
     public function updatepengesahan(Request $request, $no_kwitansi)
     {
+        // get kd tkm 
+        $kd_tkm = Tdonasi::where('no_kwitansi','=', "$no_kwitansi")->pluck('kd_tkm')->first();
+    // kondisi jika kd_tkm null tidak bisa di edit 
+    if ($kd_tkm != null) {
+        // delete ac_tkm tjurnal dan tdonasi detail 
+        $ac_tkm = Ac_tkm::where('kd_tkm',$kd_tkm)->delete();
+        $ac_tkm_dtl = Ac_tkm_dtl::where('kd_tkm',$kd_tkm)->delete();
+        $ac_tjurnal = Ac_tjurnal::where('kd_jurnal',$kd_tkm)->delete();
+        $ac_tjurnal_dtl = Ac_tjurnal_dtl::where('kd_jurnal',$kd_tkm)->delete();
+        $tdonasi_dtl = Tdonasi_dtl::where('no_kwitansi',$no_kwitansi)->delete();
+        // get datetime now
+        $datetime = date("Y-m-d H:i:s");
         // buat deskripsi  
         $kd_kas_kode =  $request->kas;
         $kasihnol = str_pad($kd_kas_kode, 2, "0", STR_PAD_LEFT);
         $ambil_nm_kas = DB::connection('sqlsrv')->table('mkas')->where('kd_kas','=',$kasihnol)->pluck('nm_kas');
         $deskripsi = "Donasi#".date('Ymd', strtotime($request->tgl_setor))."#Rek.".substr($ambil_nm_kas[0],0,22);
-         // kode_akun_kredit
+        // kode_akun_kredit
         $kd_akun_kredit = DB::connection('sqlsrv')->table('mprogram')->where('kd_program','=',$request->mprogram)->pluck('kd_akun_program')->first();
+        // kode_akun_debit 
+        $kd_akun_debit = DB::connection('sqlsrv')->table('mkas')->where('kd_kas','=',$kasihnol)->pluck('kd_akun')->first();
+        $kd_akun_debit = str_replace('.','', $kd_akun_debit);
         // tanggal transaksi dan setor dikasih jam detik menit 
         $time = date("H:i:s");
         $tgl_transaksi_time = date('Y-m-d'." ".$time, strtotime($request->tgl_transaksi));
         $tgl_setor_time = date('Y-m-d'." ".$time, strtotime($request->tgl_setor));
-        $datetime = date("Y-m-d H:i:s");
-        // get tdonasi 
-        $tdonasi = Tdonasi::where('no_kwitansi','=',$no_kwitansi)->firstorfail();
-        // except 
-        $data = $request->except(['_method','_token']);
-        // validasi
-        // looping mprogram update 
-        $looptdonasidtl = $request->tdonasi_dtl;
-        if ($kd_akun_kredit == NULL) {
-            $kd_akun_kredit = " ";
+        // insert ke table ac_tkm 
+        $ac_tkm = new Ac_tkm ;
+        $ac_tkm->kd_tkm = $kd_tkm;
+        $ac_tkm->tgl = $datetime;
+        $ac_tkm->dr = 'Wakif';
+        $ac_tkm->deskripsi = $deskripsi;
+        $ac_tkm->kd_jurnal = $kd_tkm;
+        $ac_tkm->tgl_tambah = $datetime;
+        $ac_tkm->tgl_edit = $datetime;
+        $ac_tkm->uid = Auth::user()->nm_login;
+        $ac_tkm->uid_edit = Auth::user()->nm_login;
+        $ac_tkm->save();
+        // insert ke table ac_tkm_dtl debit 
+        $ac_tkm_dtl_debit = new Ac_tkm_dtl;
+        $ac_tkm_dtl_debit->kd_tkm = $kd_tkm;
+        $ac_tkm_dtl_debit->kd_akun = $kd_akun_debit;
+        $ac_tkm_dtl_debit->no_urut = 0;
+        $ac_tkm_dtl_debit->debet = $request->total  ;
+        $ac_tkm_dtl_debit->kredit = 0;
+        $ac_tkm_dtl_debit->kd_project = "" ; 
+        $ac_tkm_dtl_debit->kd_program = ""; 
+        $ac_tkm_dtl_debit->save();
+        // insert ke table ac_tkm_dtl kredit 
+        $n = '1';
+        foreach ($request->mprogram as $index => $prog) {
+            $ac_tkm_dtl = new Ac_tkm_dtl ;
+            $ac_tkm_dtl->kd_tkm = $kd_tkm;
+            $ac_tkm_dtl->kd_akun = $kd_akun_kredit;
+            $ac_tkm_dtl->no_urut = $n++;
+            $ac_tkm_dtl->debet =   0;
+            $ac_tkm_dtl->kredit = $request->jmh[$index];
+            $ac_tkm_dtl->kd_project = $request->mproject[$index] ; 
+            $ac_tkm_dtl->kd_program = $request->mprogram[$index]; 
+            $ac_tkm_dtl->save();
         }
-        // untuk update ac tkm detail jika tdonasi detail berubah 
-        if (is_array($looptdonasidtl) || is_object($looptdonasidtl)) {
-            foreach ($looptdonasidtl as $loop ) {
-            Ac_tkm_dtl::where('kd_tkm','=', $tdonasi->kd_tkm)->where('no_urut', '=', $loop['id'])->update([
-                'kd_akun' => $kd_akun_kredit,
-                'debet' =>   0,
-                'kredit' => $loop['jmh'],
-                'kd_project' => $loop['kd_project'] , 
-                'kd_program' => $loop['kd_program'], 
-                ]);
-            }
+        // insert ke table ac_tjurnal 
+        $ac_tjurnal = new Ac_tjurnal;
+        $ac_tjurnal->kd_jurnal = $kd_tkm;
+        $ac_tjurnal->tgl = $datetime;
+        $ac_tjurnal->deskripsi = $deskripsi;
+        $ac_tjurnal->st_posting = 1 ;
+        $ac_tjurnal->tgl_tambah = $datetime;
+        $ac_tjurnal->tgl_edit = $datetime ;
+        $ac_tjurnal->uid = Auth::user()->nm_login;
+        $ac_tjurnal->uid_edit = Auth::user()->nm_login; ;
+        $ac_tjurnal->tipe_jurnal = NULL ;
+        $ac_tjurnal->sumber = 'uji_coba_reyhan' ;
+        $ac_tjurnal->save();
+        // insert ke table ac_tjurnal_dtl debit
+        $ac_tjurnal_dtl_debit = new Ac_tjurnal_dtl;
+        $ac_tjurnal_dtl_debit->kd_jurnal = $kd_tkm;
+        $ac_tjurnal_dtl_debit->kd_akun = $kd_akun_debit;
+        $ac_tjurnal_dtl_debit->no_urut = 0;
+        $ac_tjurnal_dtl_debit->debet = $request->total;
+        $ac_tjurnal_dtl_debit->kredit = 0 ;
+        $ac_tjurnal_dtl_debit->kd_project = "" ;
+        $ac_tjurnal_dtl_debit->kd_program = "";
+        $ac_tjurnal_dtl_debit->kd_dept = $request->cabang;
+        $ac_tjurnal_dtl_debit->memo = '';
+        $ac_tjurnal_dtl_debit->kd_program_sumber_dana = '' ;
+        $ac_tjurnal_dtl_debit->kd_project_sumber_dana = '';
+        $ac_tjurnal_dtl_debit->sumber = 'uji_coba_reyhan' ;
+        $ac_tjurnal_dtl_debit->id_dtl = NULL ;
+        $ac_tjurnal_dtl_debit->save();
+        // insert ke table ac_tjurnal_dtl kredit
+        $r = 1;
+        foreach ($request->mprogram as $index => $pro) {
+            $ac_tjurnal_dtl = new Ac_tjurnal_dtl;
+            $ac_tjurnal_dtl->kd_jurnal = $kd_tkm;
+            $ac_tjurnal_dtl->kd_akun = $kd_akun_kredit ;
+            $ac_tjurnal_dtl->no_urut = $r++ ;
+            $ac_tjurnal_dtl->debet = 0;
+            $ac_tjurnal_dtl->kredit = $request->jmh[$index] ;
+            $ac_tjurnal_dtl->kd_project = $request->mproject[$index] ;
+            $ac_tjurnal_dtl->kd_program = $request->mprogram[$index];
+            $ac_tjurnal_dtl->kd_dept = $request->cabang;
+            $ac_tjurnal_dtl->memo = '';
+            $ac_tjurnal_dtl->kd_program_sumber_dana = '' ;
+            $ac_tjurnal_dtl->kd_project_sumber_dana = '';
+            $ac_tjurnal_dtl->sumber = 'uji_coba_reyhan' ;
+            $ac_tjurnal_dtl->id_dtl = NULL ;
+            $ac_tjurnal_dtl->save();
         }
-        // untuk update tjurnal detail jika tdonasi detail berubah 
-        if (is_array($looptdonasidtl) || is_object($looptdonasidtl)) {
-            foreach ($looptdonasidtl as $loops) {
-            Ac_tjurnal_dtl::where('kd_jurnal','=', $tdonasi->kd_tkm)->where('no_urut','=', $loops['id'])->update([
-                'kd_akun' => $kd_akun_kredit ,
-                'debet' => 0,
-                'kredit' => $loops['jmh'] ,
-                'kd_project' => $loops['kd_project'] ,
-                'kd_program' => $loops['kd_program'],
-                ]);
-            }
-        }
-       
         // update pelanggan/wakif/customer
         $updatewakif = mpelanggan::where('kd_pelanggan','=', $request->kd_pelanggan)->update([
         'nm_lengkap' => $request->nm_lengkap,
@@ -315,160 +377,45 @@ class stock_movementController extends Controller
         'uid' => Auth::user()->name,
         'keterangan' => $request->keterangan
         ]);
-        
-        // insert ke table ac_tkm_dtl kredit 
-        $n = Ac_tkm_dtl::where('kd_tkm','=', $tdonasi->kd_tkm)->orderBy('no_urut','DESC')->pluck('no_urut')->first();
-        if (is_array($request->mprogram) != NULL || is_object($request->mprogram) != NULL){
-             //update ke table ac_tkm 
-                $ac_tkm = Ac_tkm::where('kd_tkm','=',$tdonasi->kd_tkm)->update([
-                'tgl_edit' => $datetime,
-                'uid' => Auth::user()->nm_login,
-                'deskripsi' => $deskripsi,
-                'uid_edit' => Auth::user()->nm_login,
-                ]);
-            // Update ke table ac_tkm_dtl debit 
-            $ac_tkm_dtl_debit = Ac_tkm_dtl::where('kd_tkm','=', $tdonasi->kd_tkm)->where('no_urut', '=', 0)->update([
-                'debet' => $request->total,
+        // update ke table tdonasi 
+        $tdonasis = Tdonasi::where('no_kwitansi','=',$no_kwitansi)->update([
+            'total'  => $request->total,
+            'no_kwitansi' => $request->no_kwitansi,
+            'nm_wakif' => $request->nm_wakif,
+            'kd_kas' => $request->kas,
+            'kd_pelanggan' => $request->kd_pelanggan,
+            'kd_agen' => $request->jaringan,
+            'uid_edit' => Auth::user()->nm_login ,
+            'tgl_edit' => $datetime ,
+            'ket' => 'Uji Coba Reyhan' ,
+            'tgl' => $tgl_setor_time ,
+            'tgl_transaksi' => $tgl_transaksi_time,
+            'kd_cabang' => $request->cabang ,
+            'alur_kerja' => $request->alur_kerja,
+            'biaya_bank' => $request->biaya_bank,
+            'catatan_konfirmasi'  => $request->keterangan,
             ]);
-            // insert jika ada penambahan program ke ac tkm kredit 
-            foreach ($request->mprogram as $index => $prog) {
-                $ac_tkm_dtl = new Ac_tkm_dtl ;
-                $ac_tkm_dtl->kd_tkm = $tdonasi->kd_tkm;
-                $ac_tkm_dtl->kd_akun = $kd_akun_kredit;
-                $ac_tkm_dtl->no_urut = ++$n;
-                $ac_tkm_dtl->debet =   0;
-                $ac_tkm_dtl->kredit = $request->jmh[$index];
-                $ac_tkm_dtl->kd_project = $request->mproject[$index] ; 
-                $ac_tkm_dtl->kd_program = $request->mprogram[$index]; 
-                $ac_tkm_dtl->save();
-            }
-        }
-        else
-        {
-            // Update ke table ac_tkm_dtl debit 
-            $ac_tkm_dtl_debit = Ac_tkm_dtl::where('kd_tkm','=', $tdonasi->kd_tkm)->where('no_urut', '=', 0)->update([
-                'debet' => $request->total,
-            ]);
-            //update ke table ac_tkm 
-            $ac_tkm = Ac_tkm::where('kd_tkm','=',$tdonasi->kd_tkm)->update([
-            'tgl_edit' => $datetime,
-            'uid' => Auth::user()->nm_login,
-            'deskripsi' => $deskripsi,
-            'uid_edit' => Auth::user()->nm_login,
-            ]);
-        }
-        
-        // looping berdasarkan banyaknya milih program 
         // insert ke table tdonasi_dtl
-        if (is_array($request->mprogram) != NULL || is_object($request->mprogram) != NULL){
-            // update ke table tdonasi 
-            $tdonasis = Tdonasi::where('no_kwitansi','=',$no_kwitansi)->update([
-                'total'  => $request->total,
-                'no_kwitansi' => $request->no_kwitansi,
-                'nm_wakif' => $request->nm_wakif,
-                'kd_kas' => $request->kas,
-                'kd_pelanggan' => $request->kd_pelanggan,
-                'kd_agen' => $request->jaringan,
-                'uid_edit' => Auth::user()->nm_login ,
-                'tgl_edit' => $datetime ,
-                'ket' => 'Uji Coba Reyhan' ,
-                'tgl' => $tgl_setor_time ,
-                'tgl_transaksi' => $tgl_transaksi_time,
-                'kd_cabang' => $request->cabang ,
-                'alur_kerja' => $request->alur_kerja,
-                'biaya_bank' => $request->biaya_bank,
-                'catatan_konfirmasi'  => $request->keterangan,
-            ]);
-             // insert ke table tdonasi_dtl
-            foreach ($request->mprogram as $index => $program) {
-                $tdonasi_dtl = new Tdonasi_dtl ;
-                $tdonasi_dtl->no_kwitansi = $request->no_kwitansi ;
-                $tdonasi_dtl->kd_program = $request->mprogram[$index];
-                $tdonasi_dtl->kd_project = $request->mproject[$index];
-                $tdonasi_dtl->qty = $request->qty[$index];
-                $tdonasi_dtl->jmh = $request->jmh[$index];
-                $tdonasi_dtl->fid_program = NULL ;
-                $tdonasi_dtl->fid_sub_program = NULL ;
-                $tdonasi_dtl->fqty = NULL;
-                $tdonasi_dtl->fharga = NULL;
-                $tdonasi_dtl->frealisasi = NULL;
-                $tdonasi_dtl->fid_detail = NULL ;
-                $tdonasi_dtl->sumber = 'uji_coba_reyhan' ;
-                $tdonasi_dtl->save();
-            }
-        } 
-        else 
-        {
-            // update ke table tdonasi 
-            $tdonasis = Tdonasi::where('no_kwitansi','=',$no_kwitansi)->update([
-                'no_kwitansi' => $request->no_kwitansi,
-                'nm_wakif' => $request->nm_wakif,
-                'kd_kas' => $request->kas,
-                'kd_pelanggan' => $request->kd_pelanggan,
-                'kd_agen' => $request->jaringan,
-                'uid_edit' => Auth::user()->nm_login ,
-                'tgl_edit' => $datetime ,
-                'ket' => 'Uji Coba Reyhan' ,
-                'tgl' => $tgl_setor_time ,
-                'tgl_transaksi' => $tgl_transaksi_time,
-                'kd_cabang' => $request->cabang ,
-                'alur_kerja' => $request->alur_kerja,
-                'biaya_bank' => $request->biaya_bank,
-                'catatan_konfirmasi'  => $request->keterangan,
-            ]);
+        foreach ($request->mprogram as $index => $program) {
+            $tdonasi_dtl = new Tdonasi_dtl ;
+            $tdonasi_dtl->no_kwitansi = $request->no_kwitansi;
+            $tdonasi_dtl->kd_program = $request->mprogram[$index];
+            $tdonasi_dtl->kd_project = $request->mproject[$index];
+            $tdonasi_dtl->qty = $request->qty[$index];
+            $tdonasi_dtl->jmh = $request->jmh[$index];
+            $tdonasi_dtl->fid_program = NULL ;
+            $tdonasi_dtl->fid_sub_program = NULL ;
+            $tdonasi_dtl->fqty = NULL;
+            $tdonasi_dtl->fharga = NULL;
+            $tdonasi_dtl->frealisasi = NULL;
+            $tdonasi_dtl->fid_detail = NULL ;
+            $tdonasi_dtl->sumber = 'uji_coba_reyhan' ;
+            $tdonasi_dtl->save();
         }
-        // end looping 
-
-        // looping kredit ac_tjurnal_dtl
-        // insert ke table ac_tjurnal_dtl kredit
-        $r = Ac_tjurnal_dtl::where('kd_jurnal','=', $tdonasi->kd_tkm)->orderBy('no_urut','DESC')->pluck('no_urut')->first();;
-        if (is_array($request->mprogram) != NULL || is_object($request->mprogram) != NULL){
-            // update ke table ac_tjurnal 
-            $ac_tjurnal = Ac_tjurnal::where('kd_jurnal','=',$tdonasi->kd_tkm)->update([
-                'deskripsi' => $deskripsi,
-                'tgl_edit' => $datetime,
-                'uid_edit' => Auth::user()->nm_login,
-            ]);
-            // update ke table ac_tjurnal_dtl debit
-            $ac_tjurnal_dtl_debit = Ac_tjurnal_dtl::where('kd_jurnal','=', $tdonasi->kd_tkm)->where('no_urut', '=', 0)->update([
-                'kd_dept' => $request->cabang,
-                'debet' => $request->total,
-            ]);
-            // insert ac tjurnal detail kredit 
-            foreach ($request->mprogram as $index => $pro) {
-                $ac_tjurnal_dtl = new Ac_tjurnal_dtl;
-                $ac_tjurnal_dtl->kd_jurnal = $tdonasi->kd_tkm;
-                $ac_tjurnal_dtl->kd_akun = $kd_akun_kredit ;
-                $ac_tjurnal_dtl->no_urut = ++$r ;
-                $ac_tjurnal_dtl->debet = 0;
-                $ac_tjurnal_dtl->kredit = $request->jmh[$index] ;
-                $ac_tjurnal_dtl->kd_project = $request->mproject[$index] ;
-                $ac_tjurnal_dtl->kd_program = $request->mprogram[$index];
-                $ac_tjurnal_dtl->kd_dept = $request->cabang;
-                $ac_tjurnal_dtl->memo = '';
-                $ac_tjurnal_dtl->kd_program_sumber_dana = '' ;
-                $ac_tjurnal_dtl->kd_project_sumber_dana = '';
-                $ac_tjurnal_dtl->sumber = 'uji_coba_reyhan' ;
-                $ac_tjurnal_dtl->id_dtl = NULL ;
-                $ac_tjurnal_dtl->save();
-            }
-        }
-        else
-        {
-            // update ke table ac_tjurnal 
-            $ac_tjurnal = Ac_tjurnal::where('kd_jurnal','=',$tdonasi->kd_tkm)->update([
-                'deskripsi' => $deskripsi,
-                'tgl_edit' => $datetime,
-                'uid_edit' => Auth::user()->nm_login,
-            ]);
-            // update ke table ac_tjurnal_dtl debit
-            $ac_tjurnal_dtl_debit = Ac_tjurnal_dtl::where('kd_jurnal','=', $tdonasi->kd_tkm)->where('no_urut', '=', 0)->update([
-                'kd_dept' => $request->cabang,
-                'debet' => $request->total,
-            ]);
-        }
-        // Tdonasi::where('no_kwitansi','=',$no_kwitansi)->update($data);
         return redirect()->route('tabledonasi')->with('edit','data berhasil di edit');
+    } else {
+        return redirect()->route('tabledonasi')->with('failed','Data tidak bisa edit');
+    }
     
     }
     public function cekperverifikasi($id ,$tgl, $jmh, $sumber, $tanggal)

@@ -72,6 +72,9 @@ Route::group(['middleware' => ['auth']], function(){
     Route::get('/donasi', 'donasiController@index')->name('donasi');
     Route::get('/carihp','donasiController@carihp')->name('carihp');
     Route::get('/cariemail','donasiController@cariemail')->name('cariemail');
+    Route::post('/carinokwitansi', 'donasiController@carinokwitansi')->name('carinokwitansi');
+    Route::post('/cariduphp', 'donasiController@cariduphp')->name('cariduphp');
+    Route::post('/caridupemail', 'donasiController@caridupemail')->name('caridupemail');
     Route::get('/getvaluewakif','donasiController@getvaluewakif')->name('valuewakif');
     Route::post('donasi/storedonasi','donasiController@store')->name('storedonasi');
     Route::get('donasi/tabledonasi', 'donasiController@tabledonasi')->name('tabledonasi');

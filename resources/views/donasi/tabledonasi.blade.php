@@ -14,6 +14,11 @@
             {{session('delete')}}
         </div>
     @endif
+    @if(session('failed'))
+        <div class="alert alert-danger">
+            {{session('failed')}}
+        </div>
+    @endif
     @if(session('edit'))
         <div class="alert alert-warning">
             {{session('edit')}}
@@ -24,22 +29,53 @@
     <div class="col">
     <div class="card card-small mb-4">
         <div class="card-header border-bottom">
-        <h6 class="m-0">Filter tanggal setor</h6>
-        <div class="row mt-2 input-daterange">
-            <div class="col-md-4">
-                <input type="text" name="from_date" id="from_date" class="form-control" placeholder="Dari Tanggal"  />
+            <div class="row mt-2">
+                <div class="col-md-2">
+                    <select name="filter_pembayaran" id="filter_pembayaran" class="form-control">
+                        <option value="">-Semua pembayaran-</option>
+                        @foreach($pembayaran as $pem)
+                            <option value="{{$pem->kd_kas}}">{{$pem->nm_kas}}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="filter_cabang" id="filter_cabang" class="form-control">
+                        <option value="">-Semua cabang-</option>
+                        @foreach($cabang as $cab)
+                            <option value="{{$cab->ID}}">{{$cab->Nm}}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <input type="text" name="filter_no_kwitansi" id="filter_no_kwitansi" class="form-control" placeholder="Dari Kwintasi"  />
+                </div>
+                <div class="col-md-2">
+                    <input type="text" name="filter_no_kwitansis" id="filter_no_kwitansis" class="form-control" placeholder="Sampai Kwitansi"  />
+                </div>
+                <div class="col-md-2 input-daterange">
+                    <input type="text" name="from_date" id="from_date" class="form-control" placeholder="Dari Tanggal"  />
+                </div>
+                <div class="col-md-2 input-daterange">
+                    <input type="text" name="to_date" id="to_date" class="form-control" placeholder="Sampai Tanggal"  />
+                </div>
             </div>
-            <div class="col-md-4">
-                <input type="text" name="to_date" id="to_date" class="form-control" placeholder="Sampai Tanggal"  />
+            <div class="row mt-2 d-flex justify-content-end">
+                <div class="col-md-2">
+                    <select name="filter_status" id="filter_status" class="form-control">
+                        <option value="">-pilih Status-</option>
+                        <option value="ENTRI">1 - Entri</option>
+                        <option value="VERIFIKASI">2 - Verifikasi</option>
+                        <option value="SAH">3 - Pengesahan</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <button type="button" name="filter" id="filter" class="btn btn-primary"><i class="fas fa-filter"></i> Filter</button>
+                    <button type="button" name="refresh" id="refresh" class="btn btn-dark"><i class="fas fa-sync-alt"></i> Refresh</button>
+                    <a href="{{route('donasi')}}" class=" btn btn-success small btn-small">
+                        <i class="fas fa-plus"> Tambah</i>
+                    </a>
+                </div>
             </div>
-            <div class="col-md-4">
-                <button type="button" name="filter" id="filter" class="btn btn-primary"><i class="fas fa-filter"></i> Filter</button>
-                <button type="button" name="refresh" id="refresh" class="btn btn-dark"><i class="fas fa-sync-alt"></i> Refresh</button>
-                <a href="{{route('donasi')}}" class="float-right btn btn-success small btn-small">
-                    <i class="fas fa-plus"> Tambah</i>
-                </a>
-            </div>
-        </div>
         </div>
         <div class="card-body p-0 pb-3 text-center">
         
@@ -129,13 +165,14 @@
             autoclose: true
         });
         load_data();
-        function load_data(from_date = '', to_date = '')
+        function load_data(filter_pembayaran = '', filter_cabang = '', filter_no_kwitansi = '', filter_no_kwitansis = '',from_date = '', to_date = '', filter_status = '')
         {
         // datatable 
-        $("#donasi").DataTable({
+        var table = $("#donasi").DataTable({
+            "dom": 'rt<"bottom"lpi><"clear">',
             processing: true,
             serverSide: true,
-            // searching: false,
+            searching: false,
             language:{
                 'processing' : '<div class="fixed-top"><div  class="spinner-grow" style="width: 3rem; height: 3rem;" role="status"></div><p class="text-white bg-dark mt-2">Memuat data, Harap tunggu yaa..</p> </div>',
                 'search' : 'Cari No Kwitansi',
@@ -143,7 +180,7 @@
             },
             ajax:{
                 url:'{{route('jsontdonasi')}}',
-                data:{from_date:from_date, to_date:to_date}
+                data:{filter_pembayaran:filter_pembayaran, filter_cabang:filter_cabang,filter_no_kwitansi:filter_no_kwitansi,filter_no_kwitansis:filter_no_kwitansis,from_date:from_date, to_date:to_date,filter_status:filter_status}
             }, 
             columns : [
                 {data:'sah', name:'sah', searchable:false,orderable:false},
@@ -164,18 +201,29 @@
         }
 
         $('#filter').click(function(){
+            var filter_pembayaran = $('#filter_pembayaran').val();
+            var filter_cabang = $('#filter_cabang').val();
+            var filter_no_kwitansi = $('#filter_no_kwitansi').val();
+            var filter_no_kwitansis = $('#filter_no_kwitansis').val();
             var from_date = $('#from_date').val();
             var to_date = $('#to_date').val();
-            if (from_date != '' && to_date != '') {
+            var filter_status = $('#filter_status').val();
+            // if (filter_cabang != '' ) {
+            // if (filter_cabang != '' && filter_pembayaran != '' && from_date != '' && to_date != '') {
                 $('#donasi').DataTable().destroy();
-                load_data(from_date, to_date);
-            }
-            else
-            {
-                alert('Wajib memilih tanggal untuk memfilter');
-            }
+                load_data(filter_pembayaran,filter_cabang,filter_no_kwitansi,filter_no_kwitansis,from_date, to_date,filter_status);
+            // }
+            // else
+            // {
+            //     alert('Wajib memilih semua untuk memfilter');
+            // }
         });
         $('#refresh').click(function(){
+            $('#filter_pembayaran').val('');
+            $('#filter_cabang').val('');
+            $('#filter_status').val('');
+            $('#filter_no_kwitansi').val('');
+            $('#filter_no_kwitansis').val('');
             $('#from_date').val('');
             $('#to_date').val('');
             $('#donasi').DataTable().destroy();
